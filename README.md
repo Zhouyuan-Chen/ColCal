@@ -51,7 +51,7 @@ In this library, I implemented some collision detection methods, you can use thi
        |  front    |  / 
        |           | /
        |_ _ _ _ _ _|/
-	   ^
-	   |
-         bottom
+            ^
+            |
+          bottom
 ```
