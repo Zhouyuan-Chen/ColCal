@@ -42,16 +42,16 @@ In this library, I implemented some collision detection methods, you can use thi
   ```
  * NOTE: digram for box	
  ```
-		      _ _ _ _ _ _		   
-		     /	         /|<---behind
-		    /	top     / |
-		   /_ _ _ _ _ _/  | 
- 	    left-> |	       |<-|- - - - right
-		   |	       |  |
-		   |	front  |  / 
-		   |	       | /
-		   |_ _ _ _ _ _|/
-			 ^
-			 |
-                       bottom
+		   _ _ _ _ _ _		   
+		  /			  /|<---behind
+		 /	top		 / |
+		/_ _ _ _ _ _/  | 
+left->|			|<-|- - - - right
+		|			|  |
+		|	front	|  / 
+		|			| /
+		|_ _ _ _ _ _|/
+			^
+			|
+         bottom
 ```
