@@ -13,7 +13,13 @@
 /////////////////////////////////////////////////////////////////
 // DESCRIPTION
 /////////////////////////////////////////////////////////////////
+// In this library, I implemented some collision detection methods,
+// you can use this library for geometrical or physical simulation.
+// If you encounter any problems while you using this library, please 
+// do not hesitate to contact me through Git Hub!
+/////////////////////////////////////////////////////////////////
 // GEOMETRY SUPPORT
+/////////////////////////////////////////////////////////////////
 // * POINT
 // * TRIANGLE
 // * PLANE
@@ -21,34 +27,79 @@
 // * SHPERE
 // * RAY
 // * SEGEMENT
-// 
-// BOUNDING VOLUME
+/////////////////////////////////////////////////////////////////
+// BOUNDING VOLUME SUPPORT
+/////////////////////////////////////////////////////////////////
 // * BOX
 // * SPHERE
-// 
-// ACCELERATION COLLISION DETECTION ALGORITHM
+/////////////////////////////////////////////////////////////////
+// ACCELERATION COLLISION DETECTION ALGORITHM SUPPORT
+/////////////////////////////////////////////////////////////////
 // * SWEEP AND PRUNE (SaP)
 // * BOUNDING VOLUME HIERARCHY (BVH)
 // * OCTREE (OCT)
-//
-// In this library, I implemented some collision detection methods, you 
-// can use this library for geometrical or physical simultaion.
-// 
-//
-// NOTE: this lib uses right-hand rule	
-// 
+/////////////////////////////////////////////////////////////////
+// MATH CLASS SUPPORT
+/////////////////////////////////////////////////////////////////
+// * VEC3 (for normal vector)
+// * VEC4 (for point position)
+// * MAT4 (for basic rotate and transform)
+/////////////////////////////////////////////////////////////////
+// DIAGRAM FOR LEFT-HAND RULE
+/////////////////////////////////////////////////////////////////
+//	
 //	   |y
 //	   |   / z
 //	   |  /
 //	   | /
 //	   |/_ _ _ _ _ x
 // 
+// NOTE: this lib uses LEFT-hand rule
 /////////////////////////////////////////////////////////////////
+//  DIAGRAM FOR BOX COLLISION
+/////////////////////////////////////////////////////////////////
+//      	 
+//         _ _ _ _ _ _		   
+//        /           /|<---behind
+//       /    top    / |
+//      /_ _ _ _ _ _/  | 
+//left->|           |<-|- - - - right
+//      |           |  |
+//      |   front   |  / 
+//      |           | /
+//      |_ _ _ _ _ _|/
+//          ^
+//          |
+//        bottom
+// 
+//     |y
+//	   |   / z
+//	   |  /
+//	   | /
+//	   |/_ _ _ _ _ x
+// 
+/////////////////////////////////////////////////////////////////
+//  DIAGRAM FOR PLANE DATASTRUCTURE
+/////////////////////////////////////////////////////////////////
+// 
+//             ^  arrow 
+//         _ _ | _ _ _ _  
+//        /    |        /
+//       /     * point /
+//      /             /
+//     /_ _ _ _ _ _ _/
+// 
+/////////////////////////////////////////////////////////////////
+
+
 #ifndef COLCAL_H
 #define COLCAL_H
 
+#include <iostream>
 #include <vector>
 #include <algorithm>
+#include <chrono>
+
 #define ColCal_Max(a,b) ((a) > (b) ? (a) : (b))
 #define ColCal_Min(a,b) ((a) < (b) ? (a) : (b))
 

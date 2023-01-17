@@ -1,4 +1,4 @@
-#include "SaP.h"
+#include "ColCal_SaP.h"
 
 // this function is used by SaP, to test whether need to continue to sweep
 bool SaP_Passed(const ColCal_Box a, const ColCal_Box b, const int axis = 0) {
@@ -86,6 +86,7 @@ void ColCal_SaP_2_Objs::compute() {
 
 		// the first sweep
 		for (int i = skip_idx_min; i < Obj2.BoxArray.size(); i++) {
+
 			ColCal_Box cur_box_cmp = Obj2.BoxArray[i];
 			// if no box intersects with current box, then break and sweep the next box in list1
 			if (SaP_Passed(cur_box, cur_box_cmp, this->axis)) {
@@ -114,7 +115,7 @@ void ColCal_SaP_2_Objs::compute() {
 		int next_axis2 = (next_axis1 + 1) % 3;
 		ColCal_Tri tri1 = Obj1.TriArray[cur_box.idx];
 
-		for (ColCal_Box box2 : cur_box2_set) {
+		for (const ColCal_Box& box2 : cur_box2_set) {
 			// the second sweep
 			if (cur_box.ColCal_Collision_Axis(box2, next_axis1)) {
 				// the third sweep
