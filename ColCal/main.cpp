@@ -55,22 +55,22 @@ int main() {
 	std::chrono::duration<double, std::milli> fp_ms = endTime - startTime;
 	cout << fp_ms.count() << std::endl;
 
-	// cout << _obj_cal.getPairsNum();
+	 cout << _obj_cal.getPairsNum();
 	// sort + sweep-first + sweep-second + sweep-third + narrow-calculate = toltal-time
 	// 50ms +   <50ms     +    <10ms     +    <5ms     +      ~5ms        =   <120ms
 	// use PCA -> <<120ms
 
 
-	ColCal_Mat4 mat(
-		5, 0, 0, 0,
-		0, 3, 5, 0,
-		1, 0, 5, 0,
-		1, 0, 0, 1);
-	ColCal_Mat4 mat2(
-		2, 0, 0, 0,
-		2, 1, 0, 0,
-		2, 0, 1, 0,
-		0, 0, 0, 1);
-	(mat * mat2).print();
+	//ColCal_Mat4 mat(
+	//	5, 0, 0, 0,
+	//	0, 3, 5, 0,
+	//	1, 0, 5, 0,
+	//	1, 0, 0, 1);
+	//ColCal_Mat4 mat2(
+	//	2, 0, 0, 0,
+	//	2, 1, 0, 0,
+	//	2, 0, 1, 0,
+	//	0, 0, 0, 1);
+	//(mat * mat2).print();
 
 }

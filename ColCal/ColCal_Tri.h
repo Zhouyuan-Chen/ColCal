@@ -3,6 +3,7 @@
 
 #include "ColCal.h"
 #include "ColCal_Point.h"
+#include "ColCal_Math.h"
 
 class ColCal_Tri {
 public:
@@ -15,7 +16,7 @@ public:
 	bool ColCal_Collision(const ColCal_Tri& tri);
 
 	int idx;
-	ColCal_Point Point[3];
+	ColCal_Point Points[3];
 };
 
 class ColCal_Tri_Pair {

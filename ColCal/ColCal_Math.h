@@ -26,13 +26,11 @@ public:
 		this->value[1] = vec.value[1];
 		this->value[2] = vec.value[2];
 	}
-	ColCal_Vec3 operator-() {
-		return ColCal_Vec3(this->value[0] * -1.0, this->value[0] * -1.0, this->value[0] * -1.0);
-	}
 	ColCal_Vec3& operator=(const ColCal_Vec3& vec) {
 		this->value[0] = vec.value[0];
 		this->value[1] = vec.value[1];
 		this->value[2] = vec.value[2];
+		return *this;
 	}
 	// dot operation
 	float operator*(const ColCal_Vec3& vec) {
@@ -52,6 +50,10 @@ public:
 	// minus operation
 	ColCal_Vec3 operator-(const ColCal_Vec3& vec) {
 		return ColCal_Vec3(this->value[0] - vec.value[0], this->value[1] - vec.value[1], this->value[2] - vec.value[2]);
+	}
+	// self minus operation
+	ColCal_Vec3 operator-() {
+		return ColCal_Vec3(this->value[0] * -1.0, this->value[1] * -1.0, this->value[2] * -1.0);
 	}
 	// length operation
 	float length() {
