@@ -6,13 +6,13 @@ ColCal_Box::ColCal_Box() {
 	this->idx = -1;
 }
 ColCal_Box::ColCal_Box(const ColCal_Tri& tri) {
-	this->Max[0] = ColCal_Max(ColCal_Max(tri.Point[0].x, tri.Point[1].x), tri.Point[2].x);
-	this->Max[1] = ColCal_Max(ColCal_Max(tri.Point[0].y, tri.Point[1].y), tri.Point[2].y);
-	this->Max[2] = ColCal_Max(ColCal_Max(tri.Point[0].z, tri.Point[1].z), tri.Point[2].z);
+	this->Max[0] = ColCal_Max(ColCal_Max(tri.Points[0].x, tri.Points[1].x), tri.Points[2].x);
+	this->Max[1] = ColCal_Max(ColCal_Max(tri.Points[0].y, tri.Points[1].y), tri.Points[2].y);
+	this->Max[2] = ColCal_Max(ColCal_Max(tri.Points[0].z, tri.Points[1].z), tri.Points[2].z);
 
-	this->Min[0] = ColCal_Min(ColCal_Min(tri.Point[0].x, tri.Point[1].x), tri.Point[2].x);
-	this->Min[1] = ColCal_Min(ColCal_Min(tri.Point[0].y, tri.Point[1].y), tri.Point[2].y);
-	this->Min[2] = ColCal_Min(ColCal_Min(tri.Point[0].z, tri.Point[1].z), tri.Point[2].z);
+	this->Min[0] = ColCal_Min(ColCal_Min(tri.Points[0].x, tri.Points[1].x), tri.Points[2].x);
+	this->Min[1] = ColCal_Min(ColCal_Min(tri.Points[0].y, tri.Points[1].y), tri.Points[2].y);
+	this->Min[2] = ColCal_Min(ColCal_Min(tri.Points[0].z, tri.Points[1].z), tri.Points[2].z);
 
 	this->idx = tri.idx;
 }

@@ -6,7 +6,7 @@
 class ColCal_Point {
 public:
 	ColCal_Point();
-	ColCal_Point(float X, float Y, float Z);
+	ColCal_Point(ColCal_DataType X, ColCal_DataType Y, ColCal_DataType Z);
 	ColCal_Point(const ColCal_Point& point);
 	ColCal_Point& operator=(const ColCal_Point& point);
 

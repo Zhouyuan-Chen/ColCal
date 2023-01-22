@@ -8,12 +8,11 @@
 class ColCal_Tri {
 public:
 	ColCal_Tri();
-
 	ColCal_Tri(const ColCal_Point p1, const ColCal_Point p2, const ColCal_Point p3, int Idx);
 	ColCal_Tri(const ColCal_Tri& tri);
 	ColCal_Tri& operator=(const ColCal_Tri& tri);
-
-	bool ColCal_Collision(const ColCal_Tri& tri);
+	bool ColCal_Point_Inside_Triangle(const ColCal_Point& p) const;
+	bool ColCal_Collision(const ColCal_Tri& tri, bool considerParallel = false);
 
 	int idx;
 	ColCal_Point Points[3];

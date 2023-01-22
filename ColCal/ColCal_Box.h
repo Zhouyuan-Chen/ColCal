@@ -15,8 +15,8 @@ public:
 	bool ColCal_Collision_Axis(const ColCal_Box b, const int axis = 0);
 
 	int idx;
-	float Max[3];
-	float Min[3];
+	ColCal_DataType Max[3];
+	ColCal_DataType Min[3];
 };
 
 #endif

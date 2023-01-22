@@ -73,10 +73,10 @@
 //        bottom
 // 
 //     |y
-//     |   / z
-//     |  /
-//     | /
-//     |/_ _ _ _ _ x
+//	   |   / z
+//	   |  /
+//	   | /
+//	   |/_ _ _ _ _ x
 // 
 /////////////////////////////////////////////////////////////////
 // DIAGRAM FOR PLANE
@@ -116,6 +116,10 @@
 
 #define ColCal_Max(a,b) ((a) > (b) ? (a) : (b))
 #define ColCal_Min(a,b) ((a) < (b) ? (a) : (b))
-#define ColCal_DataType (Double)
+typedef float ColCal_DataType;
+//typedef double ColCal_DataType;
+#define ColCal_Pi 3.1415926
+//#define ColCal_PROXIMATE_ONE 0.999999999999
+//#define ColCal_PROXIMATE_ZERO 0.00001
 
 #endif // !COLCAL_H

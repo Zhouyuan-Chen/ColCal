@@ -13,10 +13,10 @@ public:
 	ColCal_Vec3() {
 		this->value[0] = this->value[1] = this->value[2] = 0.0;
 	}
-	ColCal_Vec3(float x) {
+	ColCal_Vec3(ColCal_DataType x) {
 		this->value[0] = this->value[1] = this->value[2] = x;
 	}
-	ColCal_Vec3(float x, float y, float z) {
+	ColCal_Vec3(ColCal_DataType x, ColCal_DataType y, ColCal_DataType z) {
 		this->value[0] = x;
 		this->value[1] = y;
 		this->value[2] = z;
@@ -33,15 +33,15 @@ public:
 		return *this;
 	}
 	// dot operation
-	float operator*(const ColCal_Vec3& vec) {
+	ColCal_DataType operator*(const ColCal_Vec3& vec) {
 		return this->value[0] * vec.value[0] + this->value[1] * vec.value[1] + this->value[2] * vec.value[2];
 	}
 	// cross operation
 	ColCal_Vec3 operator^(const ColCal_Vec3& vec) {
 		return ColCal_Vec3(
-			this->value[1] * vec.value[2] + this->value[2] * vec.value[1],
-			-(this->value[0] * vec.value[2] + this->value[2] * vec.value[0]),
-			this->value[0] * vec.value[1] + this->value[1] * vec.value[0]);
+			this->value[1] * vec.value[2] - this->value[2] * vec.value[1],
+			-(this->value[0] * vec.value[2] - this->value[2] * vec.value[0]),
+			this->value[0] * vec.value[1] - this->value[1] * vec.value[0]);
 	}
 	// plus operation
 	ColCal_Vec3 operator+(const ColCal_Vec3& vec) {
@@ -56,22 +56,22 @@ public:
 		return ColCal_Vec3(this->value[0] * -1.0, this->value[1] * -1.0, this->value[2] * -1.0);
 	}
 	// length operation
-	float length() {
+	ColCal_DataType length() {
 		return sqrtf(this->value[0] * this->value[0] + this->value[1] * this->value[1] + this->value[2] * this->value[2]);
 	}
 	// nomalize operation
 	ColCal_Vec3 normalize() {
-		float len = this->length();
+		ColCal_DataType len = this->length();
 		return ColCal_Vec3(this->value[0] / len, this->value[1] / len, this->value[2] / len);
 	}
-	float& operator[](int idx) {
+	ColCal_DataType& operator[](int idx) {
 		return this->value[idx];
 	}
 	void print() {
 		std::cout << "(" << value[0] << ", " << value[1] << ", " << value[2] << ")" << std::endl;
 	}
 
-	float value[3];
+	ColCal_DataType value[3];
 };
 
 class ColCal_Vec4 {
@@ -80,11 +80,11 @@ public:
 		this->value[0] = this->value[1] = this->value[2] = 0.0;
 		this->value[3] = 1.0;
 	}
-	ColCal_Vec4(float x) {
+	ColCal_Vec4(ColCal_DataType x) {
 		this->value[0] = this->value[1] = this->value[2] = x;
 		this->value[3] = 1.0;
 	}
-	ColCal_Vec4(float x, float y, float z, float r = 1) {
+	ColCal_Vec4(ColCal_DataType x, ColCal_DataType y, ColCal_DataType z, ColCal_DataType r = 1) {
 		this->value[0] = x;
 		this->value[1] = y;
 		this->value[2] = z;
@@ -102,13 +102,13 @@ public:
 		this->value[2] = vec.value[2];
 		this->value[3] = 1.0;
 	}
-	float& operator[](int idx) {
+	ColCal_DataType& operator[](int idx) {
 		return this->value[idx];
 	}
 	void print() {
 		std::cout << "(" << value[0] << ", " << value[1] << ", " << value[2] << ", " << value[3] << ")" << std::endl;
 	}
-	float value[4];
+	ColCal_DataType value[4];
 };
 
 class ColCal_Mat4 {
@@ -123,7 +123,7 @@ public:
 			}
 		}
 	}
-	ColCal_Mat4(float x) {
+	ColCal_Mat4(ColCal_DataType x) {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (i != j)
@@ -135,10 +135,10 @@ public:
 		this->value[3][3] = 1.0;
 	}
 	ColCal_Mat4(
-		float x1, float y1, float z1, float r1,
-		float x2, float y2, float z2, float r2,
-		float x3, float y3, float z3, float r3,
-		float x4, float y4, float z4, float r4) {
+		ColCal_DataType x1, ColCal_DataType y1, ColCal_DataType z1, ColCal_DataType r1,
+		ColCal_DataType x2, ColCal_DataType y2, ColCal_DataType z2, ColCal_DataType r2,
+		ColCal_DataType x3, ColCal_DataType y3, ColCal_DataType z3, ColCal_DataType r3,
+		ColCal_DataType x4, ColCal_DataType y4, ColCal_DataType z4, ColCal_DataType r4) {
 		this->value[0][0] = x1;	this->value[0][1] = y1;	this->value[0][2] = z1;	this->value[0][3] = r1;
 		this->value[1][0] = x2;	this->value[1][1] = y2; this->value[1][2] = z2; this->value[1][3] = r2; 
 		this->value[2][0] = x3; this->value[2][1] = y3; this->value[2][2] = z3; this->value[2][3] = r2;
@@ -180,7 +180,7 @@ public:
 		}
 		return ret;
 	}
-	float* operator[](int idx) {
+	ColCal_DataType* operator[](int idx) {
 		return &value[idx][0];
 	}
 	void print() {
@@ -189,7 +189,7 @@ public:
 		std::cout << "  " << this->value[2][0] << ", " << this->value[2][1] << ", " << this->value[2][2]<< ", " << this->value[2][3] << std::endl;
 		std::cout << "  " << this->value[3][0] << ", " << this->value[3][1] << ", " << this->value[3][2]<< ", " << this->value[3][3] << " ]" << std::endl;
 	}
-	float value[4][4];
+	ColCal_DataType value[4][4];
 };
 
 #endif
