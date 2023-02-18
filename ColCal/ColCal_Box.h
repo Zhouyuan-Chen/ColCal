@@ -25,4 +25,35 @@ public:
 	ColCal_DataType Min[3];
 };
 
+//class CompareComponent {
+//public:
+//	inline bool Compare_Align_Axis(s, int axis) {
+//
+//	}
+//
+//	inline bool TriCompare_X(const ColCal_Tri& A, const ColCal_Tri& B) {
+//		return A.Min[0] < B.Min[0];
+//	};
+//
+//	inline bool TriCompare_Y(const ColCal_Tri& A, const ColCal_Tri& B) {
+//		return A.Min[1] < B.Min[1];
+//	};
+//
+//	inline bool TriCompare_Z(const ColCal_Tri& A, const ColCal_Tri& B) {
+//		return A.Min[2] < B.Min[2];
+//	};
+//
+//	inline bool SaP_BoxCompare_X(const ColCal_Box& A, const ColCal_Box& B) {
+//		return A.Min[0] < B.Min[0];
+//	};
+//
+//	inline bool SaP_BoxCompare_Y(const ColCal_Box& A, const ColCal_Box& B) {
+//		return A.Min[1] < B.Min[1];
+//	};
+//
+//	inline bool SaP_BoxCompare_Z(const ColCal_Box& A, const ColCal_Box& B) {
+//		return A.Min[2] < B.Min[2];
+//	};
+//};
+
 #endif

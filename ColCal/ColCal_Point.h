@@ -9,8 +9,9 @@ public:
 	ColCal_Point(ColCal_DataType X, ColCal_DataType Y, ColCal_DataType Z);
 	ColCal_Point(const ColCal_Point& point);
 	ColCal_Point& operator=(const ColCal_Point& point);
+	ColCal_DataType& operator[](const int x);
 
-	float x, y, z;
+	ColCal_DataType x, y, z;
 };
 
 #endif // !POINT_H

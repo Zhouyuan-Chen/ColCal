@@ -5,15 +5,15 @@
 #include "ColCal_Tri.h"
 #include "ColCal_Box.h"
 
-inline bool SaP_BoxCompare_X(const ColCal_Box A, const ColCal_Box B) {
+inline bool SaP_BoxCompare_X(const ColCal_Box& A, const ColCal_Box& B) {
 	return A.Min[0] < B.Min[0];
 };
 
-inline bool SaP_BoxCompare_Y(const ColCal_Box A, const ColCal_Box B) {
+inline bool SaP_BoxCompare_Y(const ColCal_Box& A, const ColCal_Box& B) {
 	return A.Min[1] < B.Min[1];
 };
 
-inline bool SaP_BoxCompare_Z(const ColCal_Box A, const ColCal_Box B) {
+inline bool SaP_BoxCompare_Z(const ColCal_Box& A, const ColCal_Box& B) {
 	return A.Min[2] < B.Min[2];
 };
 
@@ -39,7 +39,7 @@ public:
 		this->axis = Axis;
 		if (this->axis == 0)
 			std::sort(this->BoxArray.begin(), this->BoxArray.end(), &SaP_BoxCompare_X);
-		else if(this->axis == 0)
+		else if(this->axis == 1)
 			std::sort(this->BoxArray.begin(), this->BoxArray.end(), &SaP_BoxCompare_Y);
 		else
 			std::sort(this->BoxArray.begin(), this->BoxArray.end(), &SaP_BoxCompare_Z);

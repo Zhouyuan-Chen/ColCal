@@ -16,26 +16,46 @@ The declaration was: void build_recursive(int left_index, int right_index, BVHNo
 
 void ColCal_BVH::Build() {
 	// copy tris to a new vector for further sorting operation
-	std::vector<ColCal_Tri*> tris_temp;
-	std::vector<ColCal_BVH_Node> nodes;
+	for (size_t i = 0; i < maxInterNum; i++) {
+		nodes_list.push_back(ColCal_BVH_Node(ColCal_Box(), 0, -1));
+	}
 
 	// create the root node and World_Box for the root node
 	ColCal_BVH_Node root_node = ColCal_BVH_Node();
 	ColCal_Box World_Box = ColCal_Box();
-	int num_objs = 0;
 
-	if (tris_temp.size() != 0) {
-		World_Box = ColCal_Box(*tris_temp[0]);
+	if (objs_list.size() != 0) {
+		World_Box = ColCal_Box(*objs_list[0]);
 	}
-	for (const auto& o : tris_temp) {
+	for (const auto& o : objs_list) {
 		World_Box.Include(*o);
-		tris_temp.push_back(o);
-		++num_objs;
 	}
 
 	// bond the World_Box to the root node
 	root_node.setBox(World_Box);
-	Build_Recursive(0, tris_temp.size(), &root_node, this->splitMethod);
+	nodes_list[0] = root_node;
+	Build_Recursive(0, objs_list.size(), root_node, this->splitMethod);
+}
+
+void ColCal_BVH::Build_Recursive(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node, SplitMethod splitMethod) {
+	switch (splitMethod)
+	{
+	case SplitMethod::EqualCounts:
+		Build_Recursive_EqualCounts(left_index, right_index, node);
+		break;
+	case SplitMethod::Middle:
+		Build_Recursive_Middle(left_index, right_index, node);
+		break;
+	case SplitMethod::SAH:
+		Build_Recursive_SAH(left_index, right_index, node);
+		break;
+	case SplitMethod::HLBVH:
+		Build_Recursive_HLBVH(left_index, right_index, node);
+		break;
+	default:
+		Build_Recursive_EqualCounts(left_index, right_index, node);
+		break;
+	}
 }
 
 /*
@@ -53,19 +73,127 @@ void build_recursive(int left_index, int right_index, BVHNode *node, int depth)
 • EndIf
 */
 
-void ColCal_BVH::Build_Recursive_EqualCounts(int left_index, int right_index, ColCal_BVH_Node* node) {
+void ColCal_BVH::Build_Recursive_EqualCounts(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
+	if ((right_index - left_index) <= this->maxInterNum) {
+		// make leaf
+		node.makeLeaf(left_index, right_index);
+	}
+
+	// find a largest dimension
+	ColCal_DataType Range_X = node.box.Max[0] - node.box.Min[0];
+	ColCal_DataType Range_Y = node.box.Max[1] - node.box.Min[1];
+	ColCal_DataType Range_Z = node.box.Max[2] - node.box.Min[2];
+
+	int dim = 0;
+	ColCal_DataType Range_Max = Range_X;
+	if (Range_Y > Range_Max) {
+		Range_Max = Range_Y;
+		dim = 1;
+	}
+	if (Range_Z > Range_Max) {
+		dim = 2;
+	}
+
+	if (dim == 0)
+		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_X);
+	else if (dim == 1)
+		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Y);
+	else
+		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Z);
+
+	// sort from left to right and update split_index
+	unsigned int split_index = (left_index + right_index) / 2.0;
+
+	// make two node and update their AABB_Box
+	unsigned int cur_node_index = node.idx;
+
+	ColCal_BVH_Node& left_node = this->nodes_list[cur_node_index * 2 + 1];
+	ColCal_Box left_b = ColCal_Box(*objs_list[left_index]);
+	for (size_t i = left_index + 1; i < split_index; i++) {
+		left_b.Include(*objs_list[i]);
+	}
+	left_node.setBox(left_b);
+
+	ColCal_BVH_Node& right_node = this->nodes_list[cur_node_index * 2 + 2];
+	ColCal_Box right_b = ColCal_Box(*objs_list[split_index]);
+	for (size_t i = split_index + 1; i < right_index; i++) {
+		right_b.Include(*objs_list[i]);
+	}
+	right_node.setBox(right_b);
+
+	// left node
+	Build_Recursive_EqualCounts(left_index, split_index, left_node);
+	// right node
+	Build_Recursive_EqualCounts(split_index, right_index, right_node);
 
 }
 
-void ColCal_BVH::Build_Recursive_Middle(int left_index, int right_index, ColCal_BVH_Node* node) {
+void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
+	if ((right_index - left_index) <= this->maxInterNum) {
+		// make leaf
+		node.makeLeaf(left_index, right_index);
+	}
+
+	// find a largest dimension
+	ColCal_DataType Range_X = node.box.Max[0] - node.box.Min[0];
+	ColCal_DataType Range_Y = node.box.Max[1] - node.box.Min[1];
+	ColCal_DataType Range_Z = node.box.Max[2] - node.box.Min[2];
+
+	int dim = 0;
+	ColCal_DataType Range_Max = Range_X;
+	if (Range_Y > Range_Max) {
+		Range_Max = Range_Y;
+		dim = 1;
+	}
+	if (Range_Z > Range_Max) {
+		dim = 2;
+	}
+
+	if (dim == 0)
+		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_X);
+	else if (dim == 1)
+		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Y);
+	else
+		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Z);
+
+	ColCal_DataType Middle_Objs_CenterPos = (objs_list[left_index]->Points[0][dim] + objs_list[left_index]->Points[1][dim] + objs_list[left_index]->Points[2][dim]
+		+ objs_list[right_index - 1]->Points[0][dim] + objs_list[left_index - 1]->Points[1][dim] + objs_list[left_index - 1]->Points[2][dim]) / 12.0;
+
+	// sort from left to right and update split_index
+	unsigned int split_index = left_index;
+	for (; split_index < right_index; split_index++) {
+		if ((objs_list[split_index]->Points[0][dim] + objs_list[split_index]->Points[1][dim] + objs_list[split_index]->Points[2][dim]) / 3.0 > Middle_Objs_CenterPos)
+			break;
+	}
+
+	// make two node and update their AABB_Box
+	unsigned int cur_node_index = node.idx;
+
+	ColCal_BVH_Node& left_node = this->nodes_list[cur_node_index * 2 + 1];
+	ColCal_Box left_b = ColCal_Box(*objs_list[left_index]);
+	for (size_t i = left_index + 1; i < split_index; i++) {
+		left_b.Include(*objs_list[i]);
+	}
+	left_node.setBox(left_b);
+
+	ColCal_BVH_Node& right_node = this->nodes_list[cur_node_index * 2 + 2];
+	ColCal_Box right_b = ColCal_Box(*objs_list[split_index]);
+	for (size_t i = split_index + 1; i < right_index; i++) {
+		right_b.Include(*objs_list[i]);
+	}
+	right_node.setBox(right_b);
+
+	// left node
+	Build_Recursive_EqualCounts(left_index, split_index, left_node);
+	// right node
+	Build_Recursive_EqualCounts(split_index, right_index, right_node);
+}
+
+void ColCal_BVH::Build_Recursive_SAH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
 
 }
 
-void ColCal_BVH::Build_Recursive_SAH(int left_index, int right_index, ColCal_BVH_Node* node) {
-
-}
-
-void ColCal_BVH::Build_Recursive_HLBVH(int left_index, int right_index, ColCal_BVH_Node* node) {
+void ColCal_BVH::Build_Recursive_HLBVH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
 
 }
 
@@ -75,9 +203,6 @@ void ColCal_BVH_Node::setBox(ColCal_Box& b) {
 }
 
 void ColCal_BVH_Node::makeLeaf(unsigned int left, unsigned right) {
-
-}
-
-void ColCal_BVH_Node::makeNode() {
-
+	this->leaf = true;
+	this->objs_num = right - left;
 }
