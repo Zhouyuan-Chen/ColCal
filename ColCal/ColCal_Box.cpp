@@ -27,6 +27,17 @@ ColCal_Box::ColCal_Box(const ColCal_Box& box) {
 
 	this->idx = box.idx;
 }
+ColCal_Box::ColCal_Box(const ColCal_DataType x0, ColCal_DataType x1, ColCal_DataType y0, ColCal_DataType y1, ColCal_DataType z0, ColCal_DataType z1, int Idx = -1) {
+	this->Max[0] = x1;
+	this->Max[1] = y1;
+	this->Max[2] = z1;
+
+	this->Min[0] = x0;
+	this->Min[1] = y0;
+	this->Min[2] = z0;
+
+	this->idx = Idx;
+}
 ColCal_Box& ColCal_Box::operator=(const ColCal_Box& box) {
 	this->Max[0] = box.Max[0];
 	this->Max[1] = box.Max[1];
@@ -38,6 +49,15 @@ ColCal_Box& ColCal_Box::operator=(const ColCal_Box& box) {
 
 	this->idx = box.idx;
 	return *this;
+}
+
+void ColCal_Box::Include(const ColCal_Tri& tri) {
+	this->Min[0] = ColCal_Min(ColCal_Min(ColCal_Min(tri.Points[0].x, tri.Points[1].x), tri.Points[2].x), this->Min[0]);
+	this->Max[0] = ColCal_Max(ColCal_Max(ColCal_Max(tri.Points[0].x, tri.Points[1].x), tri.Points[2].x), this->Max[0]);
+	this->Min[1] = ColCal_Min(ColCal_Min(ColCal_Min(tri.Points[0].y, tri.Points[1].y), tri.Points[2].y), this->Min[1]);
+	this->Max[1] = ColCal_Max(ColCal_Max(ColCal_Max(tri.Points[0].y, tri.Points[1].y), tri.Points[2].y), this->Max[1]);
+	this->Min[2] = ColCal_Min(ColCal_Min(ColCal_Min(tri.Points[0].z, tri.Points[1].z), tri.Points[2].z), this->Min[1]);
+	this->Max[2] = ColCal_Max(ColCal_Max(ColCal_Max(tri.Points[0].z, tri.Points[1].z), tri.Points[2].z), this->Max[2]);
 }
 
 bool ColCal_Box::ColCal_Collision(const ColCal_Box b) {
