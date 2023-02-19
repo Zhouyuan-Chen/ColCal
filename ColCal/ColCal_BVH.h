@@ -7,8 +7,10 @@
 
 enum class SplitMethod
 {
-	EqualCounts, Middle, SAH, HLBVH
+	EqualCounts, Middle, SAH /* , HLBVH */
 };
+
+class ColCal_BVH_Node;
 
 class ColCal_BVH {
 public:
@@ -31,17 +33,17 @@ public:
 
 class ColCal_BVH_Node {
 public:
-	ColCal_BVH_Node(){
+	ColCal_BVH_Node() {
 		box = ColCal_Box();
 		objs_num = 0;
 		idx = 0;
 		childs[0] = childs[1] = 0;
 		leaf = false;
 	}
-	ColCal_BVH_Node(const ColCal_Box& b, unsigned int Objs_num, unsigned Idx, bool Leaf = false) {
+	ColCal_BVH_Node(const ColCal_Box& b, unsigned int Objs_num, unsigned Begin_index, bool Leaf = false) {
 		this->box = ColCal_Box(b);
 		this->objs_num = objs_num;
-		this->idx = Idx;
+		this->idx = Begin_index;
 		childs[0] = childs[1] = -1;
 		this->leaf = Leaf;
 	}

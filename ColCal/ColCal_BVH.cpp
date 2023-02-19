@@ -1,17 +1,17 @@
 ﻿#include "ColCal_BVH.h"
 /*
-void build(const std::vector<Intersectable *> &objects)
-• Create new vector for Intersectable pointer copies
-• Create new vector for the nodes
-• Create Root node
-• worldBox = AABB(); // world bounding box
-• For each intersectable[i] in objects
-– worldBox.include(intersectable[i] bounding box)
-– Objs.push_back(intersectable[i])
-• EndFor
-• Set world bounding box to root node
-• build_recursive(0, Objs.size(), root, 0);
-The declaration was: void build_recursive(int left_index, int right_index, BVHNode *node, int depth)
+	void build(const std::vector<Intersectable *> &objects)
+	* Create new vector for Intersectable pointer copies
+	* Create new vector for the nodes
+	* Create Root node
+	* worldBox = AABB(); // world bounding box
+	* For each intersectable[i] in objects
+	– worldBox.include(intersectable[i] bounding box)
+	– Objs.push_back(intersectable[i])
+	* EndFor
+	* Set world bounding box to root node
+	* build_recursive(0, Objs.size(), root, 0);
+	The declaration was: void build_recursive(int left_index, int right_index, BVHNode *node, int depth)
 */
 
 void ColCal_BVH::Build() {
@@ -48,9 +48,9 @@ void ColCal_BVH::Build_Recursive(unsigned int left_index, unsigned int right_ind
 	case SplitMethod::SAH:
 		Build_Recursive_SAH(left_index, right_index, node);
 		break;
-	case SplitMethod::HLBVH:
-		Build_Recursive_HLBVH(left_index, right_index, node);
-		break;
+	//case SplitMethod::HLBVH:
+	//	Build_Recursive_HLBVH(left_index, right_index, node);
+	//	break;
 	default:
 		Build_Recursive_EqualCounts(left_index, right_index, node);
 		break;
@@ -58,18 +58,18 @@ void ColCal_BVH::Build_Recursive(unsigned int left_index, unsigned int right_ind
 }
 
 /*
-void build_recursive(int left_index, int right_index, BVHNode *node, int depth)
-• If ((right_index – left_index) <= Threshold || (other termination criteria))
-– Initiate current node as a leaf with primitives from Objs[left_index] to Objs[right_index]
-• Else
-– Split intersectables into left and right by finding a split_index
-• Make sure that neither left nor right is completely empty
-– Calculate bounding boxes of left and right sides
-– Create two new nodes, leftNode and rightNode and assign bounding boxes
-– Initiate current node as an interior node with leftNode and rightNode as children
-– build_recursive(left_index, split_index, leftNode, depth + 1)
-– build_recursive(split_index, right_index, rightNode, depth + 1)
-• EndIf
+	void build_recursive(int left_index, int right_index, BVHNode *node, int depth)
+	* If ((right_index – left_index) <= Threshold || (other termination criteria))
+	– Initiate current node as a leaf with primitives from Objs[left_index] to Objs[right_index]
+	* Else
+	– Split intersectables into left and right by finding a split_index
+	* Make sure that neither left nor right is completely empty
+	– Calculate bounding boxes of left and right sides
+	– Create two new nodes, leftNode and rightNode and assign bounding boxes
+	– Initiate current node as an interior node with leftNode and rightNode as children
+	– build_recursive(left_index, split_index, leftNode, depth + 1)
+	– build_recursive(split_index, right_index, rightNode, depth + 1)
+	* EndIf
 */
 
 void ColCal_BVH::Build_Recursive_EqualCounts(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
@@ -193,13 +193,110 @@ void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int ri
 	node.childs[1] = nodes_list.size() - 1;
 }
 
+/*
+	c = ct + (S(Bl)/S(Bp)) * nl * ci + (S(Br)/S(Bp)) * nr * ci
+	c = estimated cost of traversing p and its children (l, r)
+	ct = ~cost of performing one traversal iteration
+	ci = ~cost of performing one intersection test
+	nl, r = number of elements in child node
+	S(Bl, r) = surface area of child node
+	S(Bp) = surface area of parent node
+*/
 void ColCal_BVH::Build_Recursive_SAH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
+	if ((right_index - left_index) <= this->maxInterNum) {
+		// make leaf
+		node.makeLeaf(left_index, right_index);
+	}
 
+	// find a largest dimension
+	ColCal_DataType Range_X = node.box.Max[0] - node.box.Min[0];
+	ColCal_DataType Range_Y = node.box.Max[1] - node.box.Min[1];
+	ColCal_DataType Range_Z = node.box.Max[2] - node.box.Min[2];
+
+	int dim = 0;
+	ColCal_DataType Range_Max = Range_X;
+	if (Range_Y > Range_Max) {
+		Range_Max = Range_Y;
+		dim = 1;
+	}
+	if (Range_Z > Range_Max) {
+		dim = 2;
+	}
+
+	if (dim == 0)
+		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_X);
+	else if (dim == 1)
+		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Y);
+	else
+		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Z);
+
+	// sort from left to right and update split_index
+	std::vector<ColCal_DataType> SAH_leftnodes_surfaces, SAH_rightnodes_surfaces;
+	// left nodes surfaces
+	ColCal_Box temp = ColCal_Box(*objs_list[0]);
+	for (size_t i = 0; i < objs_list.size() - 1; i++) {
+		temp.Include(*objs_list[i]);
+		SAH_leftnodes_surfaces.push_back(temp.getSurfaceArea());
+	}
+	temp = ColCal_Box(*objs_list[objs_list.size() - 1]);
+	// right nodes surfaces
+	for (size_t i = 0; i < objs_list.size() - 1; i++) {
+		temp.Include(*objs_list[objs_list.size() - 1 - i]);
+		SAH_rightnodes_surfaces.push_back(temp.getSurfaceArea());
+	}
+	std::reverse(SAH_rightnodes_surfaces.begin(), SAH_rightnodes_surfaces.end());
+
+	// compute optimal split_index for SAH
+	unsigned int split_index = 0;
+	unsigned int SAH_optimal_index = split_index;
+	ColCal_DataType surface_parent = node.box.getSurfaceArea();
+	ColCal_DataType SAH_optimal_cost = ColCal_Max_Value;
+	unsigned int toltal_num = right_index - left_index;
+	for (; split_index <toltal_num - 1; split_index++) {
+		ColCal_DataType surface_leftnodes = SAH_leftnodes_surfaces[split_index];
+		ColCal_DataType surface_rightnodes = SAH_rightnodes_surfaces[split_index];
+		ColCal_DataType num_left_node = split_index;
+		ColCal_DataType num_right_node = toltal_num - split_index;
+		ColCal_DataType cost = 1.0 + (surface_leftnodes * num_left_node + surface_rightnodes * num_right_node) / surface_parent;
+
+		// update SAH_optimal_index
+		if (cost < SAH_optimal_cost) {
+			SAH_optimal_cost = cost;
+			SAH_optimal_index = split_index;
+		}
+	}
+
+	split_index = SAH_optimal_index + left_index + 1;
+
+	// make two node and update their AABB_Box
+	ColCal_BVH_Node left_node = ColCal_BVH_Node(ColCal_Box(), 0, left_index);
+	ColCal_Box left_b = ColCal_Box(*objs_list[left_index]);
+	for (size_t i = left_index + 1; i < split_index; i++) {
+		left_b.Include(*objs_list[i]);
+	}
+	left_node.setBox(left_b);
+
+	ColCal_BVH_Node right_node = ColCal_BVH_Node(ColCal_Box(), 0, split_index);
+	ColCal_Box right_b = ColCal_Box(*objs_list[split_index]);
+	for (size_t i = split_index + 1; i < right_index; i++) {
+		right_b.Include(*objs_list[i]);
+	}
+	right_node.setBox(right_b);
+
+	// left node
+	Build_Recursive_EqualCounts(left_index, split_index, left_node);
+	nodes_list.push_back(left_node);
+	node.childs[0] = nodes_list.size() - 1;
+
+	// right node
+	Build_Recursive_EqualCounts(split_index, right_index, right_node);
+	nodes_list.push_back(right_node);
+	node.childs[1] = nodes_list.size() - 1;
 }
 
-void ColCal_BVH::Build_Recursive_HLBVH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
-
-}
+//void ColCal_BVH::Build_Recursive_HLBVH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
+//
+//}
 
 ColCal_BVH_Node* ColCal_BVH::getLeftChild(const ColCal_BVH_Node& node) {
 	unsigned int idx = node.childs[0];
@@ -213,7 +310,6 @@ ColCal_BVH_Node* ColCal_BVH::getRightChild(const ColCal_BVH_Node& node) {
 		return &nodes_list[idx];
 	return nullptr;
 }
-
 
 void ColCal_BVH_Node::setBox(ColCal_Box& b) {
 	this->box = ColCal_Box(b);

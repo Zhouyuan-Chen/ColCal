@@ -27,7 +27,7 @@ ColCal_Box::ColCal_Box(const ColCal_Box& box) {
 
 	this->idx = box.idx;
 }
-ColCal_Box::ColCal_Box(const ColCal_DataType x0, ColCal_DataType x1, ColCal_DataType y0, ColCal_DataType y1, ColCal_DataType z0, ColCal_DataType z1, int Idx = -1) {
+ColCal_Box::ColCal_Box(const ColCal_DataType x0, ColCal_DataType x1, ColCal_DataType y0, ColCal_DataType y1, ColCal_DataType z0, ColCal_DataType z1, int Idx) {
 	this->Max[0] = x1;
 	this->Max[1] = y1;
 	this->Max[2] = z1;
@@ -58,6 +58,20 @@ void ColCal_Box::Include(const ColCal_Tri& tri) {
 	this->Max[1] = ColCal_Max(ColCal_Max(ColCal_Max(tri.Points[0].y, tri.Points[1].y), tri.Points[2].y), this->Max[1]);
 	this->Min[2] = ColCal_Min(ColCal_Min(ColCal_Min(tri.Points[0].z, tri.Points[1].z), tri.Points[2].z), this->Min[1]);
 	this->Max[2] = ColCal_Max(ColCal_Max(ColCal_Max(tri.Points[0].z, tri.Points[1].z), tri.Points[2].z), this->Max[2]);
+}
+
+ColCal_DataType ColCal_Box::getSurfaceArea() {
+	ColCal_DataType len_x = this->Max[0] - this->Min[0];
+	ColCal_DataType len_y = this->Max[1] - this->Min[1];
+	ColCal_DataType len_z = this->Max[2] - this->Min[2];
+	return (len_x * len_y + len_x * len_z + len_y * len_z) * 2.0;
+}
+
+ColCal_DataType ColCal_Box::getVolume() {
+	ColCal_DataType len_x = this->Max[0] - this->Min[0];
+	ColCal_DataType len_y = this->Max[1] - this->Min[1];
+	ColCal_DataType len_z = this->Max[2] - this->Min[2];
+	return len_x * len_y * len_z;
 }
 
 bool ColCal_Box::ColCal_Collision(const ColCal_Box b) {

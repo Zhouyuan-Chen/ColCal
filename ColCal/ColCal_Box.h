@@ -19,6 +19,8 @@ public:
 
 	bool ColCal_Collision(const ColCal_Box b);
 	bool ColCal_Collision_Axis(const ColCal_Box b, const int axis = 0);
+	ColCal_DataType getSurfaceArea();
+	ColCal_DataType getVolume();
 
 	int idx;
 	ColCal_DataType Max[3];

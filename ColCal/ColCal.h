@@ -20,45 +20,37 @@
 /////////////////////////////////////////////////////////////////
 // GEOMETRY SUPPORT
 /////////////////////////////////////////////////////////////////
-// * POINT(implemented)
-// * TRIANGLE(implemented)
-// * PLANE(implemented)
-// * BOX(implemented)
+// * POINT
+// * TRIANGLE
+// * PLANE
+// * BOX
 // * SHPERE
 // * RAY
 // * SEGEMENT
-// * SPLINE
 /////////////////////////////////////////////////////////////////
 // BOUNDING VOLUME SUPPORT
 /////////////////////////////////////////////////////////////////
-// * BOX (AABB-BOX)(implemented)
+// * BOX (AABB-BOX)
 // * SPHERE
 /////////////////////////////////////////////////////////////////
 // ACCELERATION COLLISION DETECTION ALGORITHM SUPPORT
 /////////////////////////////////////////////////////////////////
-// * SWEEP AND PRUNE (SaP)(implemented)
+// * SWEEP AND PRUNE (SaP)
 // * QUTREE (QUT)
 // * OCTREE (OCT)
 // * KDTREE (KDT)
-// * BOUNDING VOLUME HIERARCHY (BVH)(implemented)
-// * HASHING SPACE PARTITION (HSP)
+// * BOUNDING VOLUME HIERARCHY (BVH)
 /////////////////////////////////////////////////////////////////
 // MATH CLASS SUPPORT
 /////////////////////////////////////////////////////////////////
-// * VEC3 (for normal vector)(implemented)
-// * VEC4 (for point position)(implemented)
-// * MAT4 (for basic rotate and transform)(implemented)
-/////////////////////////////////////////////////////////////////
-// CURVE SPLINE
-/////////////////////////////////////////////////////////////////
-// WAITING TO BE DESIGNED
-//
-//
+// * VEC3 (for normal vector)
+// * VEC4 (for point position)
+// * MAT4 (for basic rotate and transform)
 /////////////////////////////////////////////////////////////////
 // DIAGRAM FOR LEFT-HAND RULE
 /////////////////////////////////////////////////////////////////
 //	
-//     |y
+//	   |y
 //     |   / z
 //     |  /
 //     | /
@@ -83,10 +75,10 @@
 //        bottom
 // 
 //     |y
-//     |   / z
-//     |  /
-//     | /
-//     |/_ _ _ _ _ x
+//	   |   / z
+//	   |  /
+//	   | /
+//	   |/_ _ _ _ _ x
 // 
 /////////////////////////////////////////////////////////////////
 // DIAGRAM FOR PLANE
@@ -123,11 +115,21 @@
 #include <vector>
 #include <algorithm>
 #include <chrono>
+#include <limits.h>
 
 #define ColCal_Max(a,b) ((a) > (b) ? (a) : (b))
 #define ColCal_Min(a,b) ((a) < (b) ? (a) : (b))
 
+#if 1
 typedef float ColCal_DataType;
+#define ColCal_Max_Value FLT_MAX
+#define ColCal_Min_Value FLT_MIN
+#else
+typedef double ColCal_DataType;
+#define ColCal_Max_Value DBL_MAX
+#define ColCal_Min_Value DBL_MIN
+#endif
+
 //typedef double ColCal_DataType;
 #define ColCal_Pi 3.1415926
 //#define ColCal_PROXIMATE_ONE 0.999999999999
