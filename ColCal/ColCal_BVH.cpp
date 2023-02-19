@@ -15,10 +15,9 @@ The declaration was: void build_recursive(int left_index, int right_index, BVHNo
 */
 
 void ColCal_BVH::Build() {
-	// copy tris to a new vector for further sorting operation
-	for (size_t i = 0; i < maxInterNum; i++) {
-		nodes_list.push_back(ColCal_BVH_Node(ColCal_Box(), 0, -1));
-	}
+	// clear vector
+	if (nodes_list.size())
+		nodes_list.clear();
 
 	// create the root node and World_Box for the root node
 	ColCal_BVH_Node root_node = ColCal_BVH_Node();
@@ -33,7 +32,7 @@ void ColCal_BVH::Build() {
 
 	// bond the World_Box to the root node
 	root_node.setBox(World_Box);
-	nodes_list[0] = root_node;
+	nodes_list.push_back(root_node);
 	Build_Recursive(0, objs_list.size(), root_node, this->splitMethod);
 }
 
@@ -105,16 +104,14 @@ void ColCal_BVH::Build_Recursive_EqualCounts(unsigned int left_index, unsigned i
 	unsigned int split_index = (left_index + right_index) / 2.0;
 
 	// make two node and update their AABB_Box
-	unsigned int cur_node_index = node.idx;
-
-	ColCal_BVH_Node& left_node = this->nodes_list[cur_node_index * 2 + 1];
+	ColCal_BVH_Node left_node = ColCal_BVH_Node(ColCal_Box(), 0, left_index);
 	ColCal_Box left_b = ColCal_Box(*objs_list[left_index]);
 	for (size_t i = left_index + 1; i < split_index; i++) {
 		left_b.Include(*objs_list[i]);
 	}
 	left_node.setBox(left_b);
 
-	ColCal_BVH_Node& right_node = this->nodes_list[cur_node_index * 2 + 2];
+	ColCal_BVH_Node right_node = ColCal_BVH_Node(ColCal_Box(), 0, split_index);
 	ColCal_Box right_b = ColCal_Box(*objs_list[split_index]);
 	for (size_t i = split_index + 1; i < right_index; i++) {
 		right_b.Include(*objs_list[i]);
@@ -123,9 +120,13 @@ void ColCal_BVH::Build_Recursive_EqualCounts(unsigned int left_index, unsigned i
 
 	// left node
 	Build_Recursive_EqualCounts(left_index, split_index, left_node);
+	nodes_list.push_back(left_node);
+	node.childs[0] = nodes_list.size() - 1;
+
 	// right node
 	Build_Recursive_EqualCounts(split_index, right_index, right_node);
-
+	nodes_list.push_back(right_node);
+	node.childs[1] = nodes_list.size() - 1;
 }
 
 void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
@@ -167,16 +168,14 @@ void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int ri
 	}
 
 	// make two node and update their AABB_Box
-	unsigned int cur_node_index = node.idx;
-
-	ColCal_BVH_Node& left_node = this->nodes_list[cur_node_index * 2 + 1];
+	ColCal_BVH_Node left_node = ColCal_BVH_Node(ColCal_Box(), 0, left_index);
 	ColCal_Box left_b = ColCal_Box(*objs_list[left_index]);
 	for (size_t i = left_index + 1; i < split_index; i++) {
 		left_b.Include(*objs_list[i]);
 	}
 	left_node.setBox(left_b);
 
-	ColCal_BVH_Node& right_node = this->nodes_list[cur_node_index * 2 + 2];
+	ColCal_BVH_Node right_node = ColCal_BVH_Node(ColCal_Box(), 0, split_index);
 	ColCal_Box right_b = ColCal_Box(*objs_list[split_index]);
 	for (size_t i = split_index + 1; i < right_index; i++) {
 		right_b.Include(*objs_list[i]);
@@ -184,9 +183,14 @@ void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int ri
 	right_node.setBox(right_b);
 
 	// left node
-	Build_Recursive_EqualCounts(left_index, split_index, left_node);
+	Build_Recursive_Middle(left_index, split_index, left_node);
+	nodes_list.push_back(left_node);
+	node.childs[0] = nodes_list.size() - 1;
+
 	// right node
-	Build_Recursive_EqualCounts(split_index, right_index, right_node);
+	Build_Recursive_Middle(split_index, right_index, right_node);
+	nodes_list.push_back(right_node);
+	node.childs[1] = nodes_list.size() - 1;
 }
 
 void ColCal_BVH::Build_Recursive_SAH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
@@ -195,6 +199,19 @@ void ColCal_BVH::Build_Recursive_SAH(unsigned int left_index, unsigned int right
 
 void ColCal_BVH::Build_Recursive_HLBVH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
 
+}
+
+ColCal_BVH_Node* ColCal_BVH::getLeftChild(const ColCal_BVH_Node& node) {
+	unsigned int idx = node.childs[0];
+	if (idx && idx < nodes_list.size())
+		return &nodes_list[idx];
+	return nullptr;
+}
+ColCal_BVH_Node* ColCal_BVH::getRightChild(const ColCal_BVH_Node& node) {
+	unsigned int idx = node.childs[1];
+	if (idx && idx < nodes_list.size())
+		return &nodes_list[idx];
+	return nullptr;
 }
 
 

@@ -16,11 +16,12 @@ public:
 		: objs_list(tris_), maxInterNum(maxInterNum_), splitMethod(splitMethod_){}
 	void Build();
 	void Build_Recursive(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node, SplitMethod splitMethod);
-	
 	void Build_Recursive_Middle(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
 	void Build_Recursive_SAH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
 	void Build_Recursive_EqualCounts(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
 	void Build_Recursive_HLBVH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
+	ColCal_BVH_Node* getLeftChild(const ColCal_BVH_Node& node);
+	ColCal_BVH_Node* getRightChild(const ColCal_BVH_Node& node);
 
 	int maxInterNum;
 	SplitMethod splitMethod;
@@ -34,12 +35,14 @@ public:
 		box = ColCal_Box();
 		objs_num = 0;
 		idx = 0;
+		childs[0] = childs[1] = 0;
 		leaf = false;
 	}
 	ColCal_BVH_Node(const ColCal_Box& b, unsigned int Objs_num, unsigned Idx, bool Leaf = false) {
 		this->box = ColCal_Box(b);
 		this->objs_num = objs_num;
 		this->idx = Idx;
+		childs[0] = childs[1] = -1;
 		this->leaf = Leaf;
 	}
 
@@ -52,8 +55,10 @@ public:
 
 	ColCal_Box box;
 	bool leaf;
+	// relate to objs_list
 	unsigned int idx;
 	unsigned int objs_num;
+	unsigned int childs[2];
 };
 
 #endif // !BVH_H
