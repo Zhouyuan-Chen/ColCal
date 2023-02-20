@@ -79,9 +79,9 @@ void ColCal_BVH::Build_Recursive_EqualCounts(unsigned int left_index, unsigned i
 	}
 
 	// find a largest dimension
-	ColCal_DataType Range_X = node.box.Max[0] - node.box.Min[0];
-	ColCal_DataType Range_Y = node.box.Max[1] - node.box.Min[1];
-	ColCal_DataType Range_Z = node.box.Max[2] - node.box.Min[2];
+	ColCal_DataType Range_X = node.getBox().Max[0] - node.getBox().Min[0];
+	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
+	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
 
 	int dim = 0;
 	ColCal_DataType Range_Max = Range_X;
@@ -121,12 +121,12 @@ void ColCal_BVH::Build_Recursive_EqualCounts(unsigned int left_index, unsigned i
 	// left node
 	Build_Recursive_EqualCounts(left_index, split_index, left_node);
 	nodes_list.push_back(left_node);
-	node.childs[0] = nodes_list.size() - 1;
+	node.getChildsIndex()[0] = nodes_list.size() - 1;
 
 	// right node
 	Build_Recursive_EqualCounts(split_index, right_index, right_node);
 	nodes_list.push_back(right_node);
-	node.childs[1] = nodes_list.size() - 1;
+	node.getChildsIndex()[1] = nodes_list.size() - 1;
 }
 
 void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
@@ -136,9 +136,9 @@ void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int ri
 	}
 
 	// find a largest dimension
-	ColCal_DataType Range_X = node.box.Max[0] - node.box.Min[0];
-	ColCal_DataType Range_Y = node.box.Max[1] - node.box.Min[1];
-	ColCal_DataType Range_Z = node.box.Max[2] - node.box.Min[2];
+	ColCal_DataType Range_X = node.getBox().Max[0] - node.getBox().Min[0];
+	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
+	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
 
 	int dim = 0;
 	ColCal_DataType Range_Max = Range_X;
@@ -185,12 +185,12 @@ void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int ri
 	// left node
 	Build_Recursive_Middle(left_index, split_index, left_node);
 	nodes_list.push_back(left_node);
-	node.childs[0] = nodes_list.size() - 1;
+	node.getChildsIndex()[0] = nodes_list.size() - 1;
 
 	// right node
 	Build_Recursive_Middle(split_index, right_index, right_node);
 	nodes_list.push_back(right_node);
-	node.childs[1] = nodes_list.size() - 1;
+	node.getChildsIndex()[1] = nodes_list.size() - 1;
 }
 
 /*
@@ -209,9 +209,9 @@ void ColCal_BVH::Build_Recursive_SAH(unsigned int left_index, unsigned int right
 	}
 
 	// find a largest dimension
-	ColCal_DataType Range_X = node.box.Max[0] - node.box.Min[0];
-	ColCal_DataType Range_Y = node.box.Max[1] - node.box.Min[1];
-	ColCal_DataType Range_Z = node.box.Max[2] - node.box.Min[2];
+	ColCal_DataType Range_X = node.getBox().Max[0] - node.getBox().Min[0];
+	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
+	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
 
 	int dim = 0;
 	ColCal_DataType Range_Max = Range_X;
@@ -249,7 +249,7 @@ void ColCal_BVH::Build_Recursive_SAH(unsigned int left_index, unsigned int right
 	// compute optimal split_index for SAH
 	unsigned int split_index = 0;
 	unsigned int SAH_optimal_index = split_index;
-	ColCal_DataType surface_parent = node.box.getSurfaceArea();
+	ColCal_DataType surface_parent = node.getBox().getSurfaceArea();
 	ColCal_DataType SAH_optimal_cost = ColCal_Max_Value;
 	unsigned int toltal_num = right_index - left_index;
 	for (; split_index <toltal_num - 1; split_index++) {
@@ -286,26 +286,26 @@ void ColCal_BVH::Build_Recursive_SAH(unsigned int left_index, unsigned int right
 	// left node
 	Build_Recursive_EqualCounts(left_index, split_index, left_node);
 	nodes_list.push_back(left_node);
-	node.childs[0] = nodes_list.size() - 1;
-
+	node.getChildsIndex()[0] = nodes_list.size() - 1;
+	
 	// right node
 	Build_Recursive_EqualCounts(split_index, right_index, right_node);
 	nodes_list.push_back(right_node);
-	node.childs[1] = nodes_list.size() - 1;
+	node.getChildsIndex()[1] = nodes_list.size() - 1;
 }
 
 //void ColCal_BVH::Build_Recursive_HLBVH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node) {
 //
 //}
 
-ColCal_BVH_Node* ColCal_BVH::getLeftChild(const ColCal_BVH_Node& node) {
-	unsigned int idx = node.childs[0];
+ColCal_BVH_Node* ColCal_BVH::getLeftChild(ColCal_BVH_Node& node) {
+	unsigned int idx = node.getChildsIndex()[0];
 	if (idx && idx < nodes_list.size())
 		return &nodes_list[idx];
 	return nullptr;
 }
-ColCal_BVH_Node* ColCal_BVH::getRightChild(const ColCal_BVH_Node& node) {
-	unsigned int idx = node.childs[1];
+ColCal_BVH_Node* ColCal_BVH::getRightChild(ColCal_BVH_Node& node) {
+	unsigned int idx = node.getChildsIndex()[1];
 	if (idx && idx < nodes_list.size())
 		return &nodes_list[idx];
 	return nullptr;
@@ -315,7 +315,15 @@ void ColCal_BVH_Node::setBox(ColCal_Box& b) {
 	this->box = ColCal_Box(b);
 }
 
+ColCal_Box& ColCal_BVH_Node::getBox() {
+	return this->box;
+}
+
 void ColCal_BVH_Node::makeLeaf(unsigned int left, unsigned right) {
 	this->leaf = true;
 	this->objs_num = right - left;
+}
+
+unsigned int* ColCal_BVH_Node::getChildsIndex(){
+	return this->childs;
 }

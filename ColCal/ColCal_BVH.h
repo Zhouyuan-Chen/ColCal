@@ -14,7 +14,7 @@ class ColCal_BVH_Node;
 
 class ColCal_BVH {
 public:
-	ColCal_BVH(const std::vector<ColCal_Tri*>& tris_, int maxInterNum_ = 1, SplitMethod splitMethod_ = SplitMethod::EqualCounts)
+	ColCal_BVH(const std::vector<ColCal_Tri*>& tris_, unsigned int maxInterNum_ = 1, SplitMethod splitMethod_ = SplitMethod::EqualCounts)
 		: objs_list(tris_), maxInterNum(maxInterNum_), splitMethod(splitMethod_){}
 	void Build();
 	void Build_Recursive(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node, SplitMethod splitMethod);
@@ -22,10 +22,10 @@ public:
 	void Build_Recursive_SAH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
 	void Build_Recursive_EqualCounts(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
 	void Build_Recursive_HLBVH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
-	ColCal_BVH_Node* getLeftChild(const ColCal_BVH_Node& node);
-	ColCal_BVH_Node* getRightChild(const ColCal_BVH_Node& node);
-
-	int maxInterNum;
+	ColCal_BVH_Node* getLeftChild(ColCal_BVH_Node& node);
+	ColCal_BVH_Node* getRightChild(ColCal_BVH_Node& node);
+private:
+	unsigned int maxInterNum;
 	SplitMethod splitMethod;
 	std::vector<ColCal_Tri*> objs_list;
 	std::vector<ColCal_BVH_Node> nodes_list;
@@ -49,12 +49,15 @@ public:
 	}
 
 	void setBox(ColCal_Box&);
+	ColCal_Box& getBox();
 	void makeLeaf(unsigned int left, unsigned right);
 
 	bool isLeaf() { return leaf; }
 	unsigned int getIndex() { return idx; }
 	unsigned int getObjsNum() { return objs_num; }
+	unsigned int* getChildsIndex();
 
+private:
 	ColCal_Box box;
 	bool leaf;
 	// relate to objs_list
