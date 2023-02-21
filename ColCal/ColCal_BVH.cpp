@@ -79,10 +79,6 @@ void ColCal_BVH::Build_Recursive_EqualCounts(unsigned int left_index, unsigned i
 	}
 
 	// find a largest dimension
-	ColCal_DataType Range_X = node.getBox().Max[0] - node.getBox().Min[0];
-	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
-	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
-
 	int dim = this->getOptimalAxis(node, left_index, right_index);
 
 	BVH_Sort(left_index, right_index, dim);
@@ -123,10 +119,6 @@ void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int ri
 	}
 
 	// find a largest dimension
-	ColCal_DataType Range_X = node.getBox().Max[0] - node.getBox().Min[0];
-	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
-	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
-
 	int dim = this->getOptimalAxis(node, left_index, right_index);
 
 	BVH_Sort(left_index, right_index, dim);
@@ -183,10 +175,6 @@ void ColCal_BVH::Build_Recursive_SAH(unsigned int left_index, unsigned int right
 	}
 
 	// find a largest dimension
-	ColCal_DataType Range_X = node.getBox().Max[0] - node.getBox().Min[0];
-	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
-	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
-
 	int dim = this->getOptimalAxis(node, left_index, right_index);
 
 	BVH_Sort(left_index, right_index, dim);
@@ -331,9 +319,9 @@ int ColCal_BVH::getMaxVarAxis(const ColCal_BVH_Node& node, const unsigned int& l
 }
 
 int ColCal_BVH::getMaxDifAxis(const ColCal_BVH_Node& node, const unsigned int& left_index, const unsigned& right_index) {
-	ColCal_DataType Range_X = node.getBox().Max[0] - node.getBox().Min[0];
-	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
-	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
+	ColCal_DataType Range_X = node.getBox().getMax(0) - node.getBox().getMin(0);
+	ColCal_DataType Range_Y = node.getBox().getMax(1) - node.getBox().getMin(1);
+	ColCal_DataType Range_Z = node.getBox().getMax(2) - node.getBox().getMin(2);
 
 	return Range_X > Range_Y ? 0 : (Range_Y > Range_Z ? 1 : 2);;
 }

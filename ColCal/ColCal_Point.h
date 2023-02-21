@@ -13,4 +13,16 @@ public:
 	ColCal_DataType x, y, z;
 };
 
+inline bool PointCompare_X(ColCal_Point*& A, ColCal_Point*& B) {
+	return A->x < B->x;
+};
+
+inline bool PointCompare_Y(ColCal_Point*& A, ColCal_Point*& B) {
+	return A->y < B->y;
+};
+
+inline bool PointCompare_Z(ColCal_Point*& A, ColCal_Point*& B) {
+	return A->z < B->z;
+};
+
 #endif // !POINT_H
