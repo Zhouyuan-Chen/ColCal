@@ -29,6 +29,13 @@ ColCal_Tri& ColCal_Tri::operator=(const ColCal_Tri& tri) {
 	return *this;
 }
 
+ColCal_Point ColCal_Tri::getMidPoint() {
+	return ColCal_Point((this->Points[0].x + this->Points[1].x + this->Points[0].x) / 3.0,
+		(this->Points[0].y + this->Points[1].y + this->Points[0].y) / 3.0,
+		(this->Points[0].z + this->Points[1].z + this->Points[0].z) / 3.0
+	);
+}
+
 bool ColCal_Tri::ColCal_Point_Inside_Triangle(const ColCal_Point& p) const {
 	ColCal_Vec3 v0(this->Points[0].x, this->Points[0].y, this->Points[0].z);
 	ColCal_Vec3 v1(this->Points[1].x, this->Points[1].y, this->Points[1].z);

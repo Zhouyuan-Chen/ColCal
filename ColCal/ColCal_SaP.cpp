@@ -2,7 +2,7 @@
 
 // this function is used by SaP, to test whether need to continue to sweep
 bool SaP_Passed(const ColCal_Box a, const ColCal_Box b, const int axis = 0) {
-	if (a.Max[axis] < b.Min[axis])
+	if (a.getMax(axis) < b.getMin(axis))
 		return true;
 	return false;
 }
@@ -40,7 +40,7 @@ void ColCal_SaP_Objects::compute() {
 		int next_axis1 = (this->axis + 1) % 3;
 		int next_axis2 = (next_axis1 + 1) % 3;
 
-		ColCal_Tri tri1 = this->TriArray[cur_box.idx];
+		ColCal_Tri tri1 = this->TriArray[cur_box.getIdx()];
 
 		for (const ColCal_Box& box2 : cur_box2_set) {
 			// the second sweep
@@ -48,7 +48,7 @@ void ColCal_SaP_Objects::compute() {
 				// the third sweep
 				if (cur_box.ColCal_Collision_Axis(box2, next_axis2)) {
 					// passed three sweep, it means this collision is valid!
-					ColCal_Tri tri2 = this->TriArray[box2.idx];
+					ColCal_Tri tri2 = this->TriArray[box2.getIdx()];
 					// compute two triangles
 					if (tri1.ColCal_Collision(tri2)) {
 						// if collide, then add to result
@@ -113,7 +113,7 @@ void ColCal_SaP_2_Objs::compute() {
 		// the second and the third sweep, operate the cur_box_pairs
 		int next_axis1 = (this->axis + 1) % 3;
 		int next_axis2 = (next_axis1 + 1) % 3;
-		ColCal_Tri tri1 = Obj1.TriArray[cur_box.idx];
+		ColCal_Tri tri1 = Obj1.TriArray[cur_box.getIdx()];
 
 		for (const ColCal_Box& box2 : cur_box2_set) {
 			// the second sweep
@@ -121,7 +121,7 @@ void ColCal_SaP_2_Objs::compute() {
 				// the third sweep
 				if (cur_box.ColCal_Collision_Axis(box2, next_axis2)) {
 					// passed three sweep, it means this collision is valid!
-					ColCal_Tri tri2 = Obj2.TriArray[box2.idx];
+					ColCal_Tri tri2 = Obj2.TriArray[box2.getIdx()];
 					// compute two triangles
 					if (tri1.ColCal_Collision(tri2)) {
 						// if collide, then add to result

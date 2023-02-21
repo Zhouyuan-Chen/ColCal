@@ -83,22 +83,9 @@ void ColCal_BVH::Build_Recursive_EqualCounts(unsigned int left_index, unsigned i
 	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
 	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
 
-	int dim = 0;
-	ColCal_DataType Range_Max = Range_X;
-	if (Range_Y > Range_Max) {
-		Range_Max = Range_Y;
-		dim = 1;
-	}
-	if (Range_Z > Range_Max) {
-		dim = 2;
-	}
+	int dim = this->getOptimalAxis(node, left_index, right_index);
 
-	if (dim == 0)
-		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_X);
-	else if (dim == 1)
-		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Y);
-	else
-		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Z);
+	BVH_Sort(left_index, right_index, dim);
 
 	// sort from left to right and update split_index
 	unsigned int split_index = (left_index + right_index) / 2.0;
@@ -140,22 +127,9 @@ void ColCal_BVH::Build_Recursive_Middle(unsigned int left_index, unsigned int ri
 	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
 	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
 
-	int dim = 0;
-	ColCal_DataType Range_Max = Range_X;
-	if (Range_Y > Range_Max) {
-		Range_Max = Range_Y;
-		dim = 1;
-	}
-	if (Range_Z > Range_Max) {
-		dim = 2;
-	}
+	int dim = this->getOptimalAxis(node, left_index, right_index);
 
-	if (dim == 0)
-		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_X);
-	else if (dim == 1)
-		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Y);
-	else
-		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Z);
+	BVH_Sort(left_index, right_index, dim);
 
 	ColCal_DataType Middle_Objs_CenterPos = (objs_list[left_index]->Points[0][dim] + objs_list[left_index]->Points[1][dim] + objs_list[left_index]->Points[2][dim]
 		+ objs_list[right_index - 1]->Points[0][dim] + objs_list[left_index - 1]->Points[1][dim] + objs_list[left_index - 1]->Points[2][dim]) / 12.0;
@@ -213,22 +187,9 @@ void ColCal_BVH::Build_Recursive_SAH(unsigned int left_index, unsigned int right
 	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
 	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
 
-	int dim = 0;
-	ColCal_DataType Range_Max = Range_X;
-	if (Range_Y > Range_Max) {
-		Range_Max = Range_Y;
-		dim = 1;
-	}
-	if (Range_Z > Range_Max) {
-		dim = 2;
-	}
+	int dim = this->getOptimalAxis(node, left_index, right_index);
 
-	if (dim == 0)
-		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_X);
-	else if (dim == 1)
-		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Y);
-	else
-		std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Z);
+	BVH_Sort(left_index, right_index, dim);
 
 	// sort from left to right and update split_index
 	std::vector<ColCal_DataType> SAH_leftnodes_surfaces, SAH_rightnodes_surfaces;
@@ -315,8 +276,66 @@ void ColCal_BVH_Node::setBox(ColCal_Box& b) {
 	this->box = ColCal_Box(b);
 }
 
-ColCal_Box& ColCal_BVH_Node::getBox() {
+ColCal_Box ColCal_BVH_Node::getBox() const {
 	return this->box;
+}
+
+int ColCal_BVH::getOptimalAxis(const ColCal_BVH_Node& node, const unsigned int& left_index, const unsigned& right_index) {
+	int ret;
+	switch (this->axisMethod)
+	{
+	case BVH_AxisMethod::Difference:
+		ret = getMaxDifAxis(node, left_index, right_index);
+		break;
+	case BVH_AxisMethod::Variance:
+		ret = getMaxVarAxis(node, left_index, right_index);
+		break;
+	default:
+		ret = getMaxDifAxis(node, left_index, right_index);
+		break;
+	}
+	return ret;
+}
+
+int ColCal_BVH::getMaxVarAxis(const ColCal_BVH_Node& node, const unsigned int& left_index, const unsigned& right_index) {
+	ColCal_DataType Var_X, Var_Y, Var_Z;
+	ColCal_DataType Mean_X, Mean_Y, Mean_Z;
+	Var_X = Var_Y = Var_Z = 0;
+	Mean_X = Mean_Y = Mean_Z = 0;
+
+	for (unsigned int i = left_index; i < right_index; i++) {
+		ColCal_Point p = objs_list[i]->getMidPoint();
+		Var_X += p.x * p.x;
+		Var_Y += p.y * p.y;
+		Var_Z += p.z * p.z;
+		Mean_X += p.x;
+		Mean_Y += p.y;
+		Mean_Z += p.z;
+	}
+	Var_X /= (right_index - left_index) * 1.0; // E(X^2)
+	Mean_X /= (right_index - left_index) * 1.0; // E(X)
+	Mean_X *= Mean_X; // E(X)^2
+	Var_X -= Mean_X;
+
+	Var_Y /= (right_index - left_index) * 1.0;
+	Mean_Y /= (right_index - left_index) * 1.0;
+	Mean_Y *= Mean_Y;
+	Var_Y -= Mean_Y;
+
+	Var_Z /= (right_index - left_index) * 1.0;
+	Mean_Z /= (right_index - left_index) * 1.0;
+	Mean_Z *= Mean_Z;
+	Var_Z -= Mean_Z;
+
+	return Var_X > Var_Y ? 0 : (Var_Y > Var_Z ? 1 : 2);
+}
+
+int ColCal_BVH::getMaxDifAxis(const ColCal_BVH_Node& node, const unsigned int& left_index, const unsigned& right_index) {
+	ColCal_DataType Range_X = node.getBox().Max[0] - node.getBox().Min[0];
+	ColCal_DataType Range_Y = node.getBox().Max[1] - node.getBox().Min[1];
+	ColCal_DataType Range_Z = node.getBox().Max[2] - node.getBox().Min[2];
+
+	return Range_X > Range_Y ? 0 : (Range_Y > Range_Z ? 1 : 2);;
 }
 
 void ColCal_BVH_Node::makeLeaf(unsigned int left, unsigned right) {

@@ -5,7 +5,7 @@ ColCal_Point::ColCal_Point() {
 	this->y = 0;
 	this->z = 0;
 }
-ColCal_Point::ColCal_Point(ColCal_DataType X, ColCal_DataType Y, ColCal_DataType Z) {
+ColCal_Point::ColCal_Point(const ColCal_DataType& X, const ColCal_DataType& Y, const ColCal_DataType& Z) {
 	this->x = X;
 	this->y = Y;
 	this->z = Z;

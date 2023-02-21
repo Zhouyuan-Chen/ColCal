@@ -6,15 +6,16 @@
 #include "ColCal_Box.h"
 
 inline bool SaP_BoxCompare_X(const ColCal_Box& A, const ColCal_Box& B) {
-	return A.Min[0] < B.Min[0];
+	
+	return A.getMin(0) < B.getMin(0);
 };
 
 inline bool SaP_BoxCompare_Y(const ColCal_Box& A, const ColCal_Box& B) {
-	return A.Min[1] < B.Min[1];
+	return A.getMin(1) < B.getMin(1);
 };
 
 inline bool SaP_BoxCompare_Z(const ColCal_Box& A, const ColCal_Box& B) {
-	return A.Min[2] < B.Min[2];
+	return A.getMin(2) < B.getMin(2);
 };
 
 // for general SaP question

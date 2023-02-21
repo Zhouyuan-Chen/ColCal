@@ -86,3 +86,13 @@ bool ColCal_Box::ColCal_Collision_Axis(const ColCal_Box b, const int axis) {
 		return false;
 	return true;
 }
+
+ColCal_DataType ColCal_Box::getMax(int x)const {
+	return this->Max[x];
+}
+ColCal_DataType ColCal_Box::getMin(int x)const {
+	return this->Min[x];
+}
+unsigned int ColCal_Box::getIdx()const {
+	return this->idx;
+}
