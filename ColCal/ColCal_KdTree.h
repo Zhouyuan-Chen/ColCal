@@ -12,12 +12,14 @@ enum class SearchMethod {
 class ColCal_KdTree_Node {
 public:
 	ColCal_KdTree_Node();
-	ColCal_KdTree_Node(unsigned int index_, unsigned int cur_axis_, ColCal_DataType split_value_ = ColCal_Max_Value, unsigned int objs_num_ = 0, bool leaf_ = false)
-		: index(index_), axis(cur_axis_), split_value(split_value_), objs_num(objs_num_), leaf(leaf_) {
+	ColCal_KdTree_Node(unsigned int index_, unsigned int cur_axis_, ColCal_DataType split_value_ = ColCal_Max_Value, unsigned int objs_num_ = 0, bool leaf_ = false, ColCal_DataType BBF_Value_ = ColCal_Max_Value)
+		: index(index_), axis(cur_axis_), split_value(split_value_), objs_num(objs_num_), leaf(leaf_), BBF_Value(BBF_Value_) {
 		this->childs[0] = this->childs[1] = -1;
 	}
 	int getAxis();
 	ColCal_DataType getSplitValue();
+	ColCal_DataType getBBF_Value()const;
+	void setBBF_Value(const ColCal_DataType& BBF_Value_);
 	unsigned int getIndex()const;
 	unsigned int* getChildsIndex();
 	unsigned int getObjsNum();
@@ -31,6 +33,7 @@ private:
 	ColCal_DataType split_value;
 	unsigned int childs[2];
 	bool leaf;
+	ColCal_DataType BBF_Value;
 };
 
 class ColCal_KdTree {
@@ -51,6 +54,15 @@ public:
 	unsigned int NormalSearch(const ColCal_Point*& target_point);
 	unsigned int BBFSearch(const ColCal_Point*& target_point);
 	bool Existed(const std::vector<ColCal_KdTree_Node*>& nodes, const unsigned int& node_index);
+	ColCal_DataType Calculate_BBF_Value(const ColCal_KdTree_Node& A, const ColCal_Point& p) {
+		// manhatte
+		ColCal_Point A_p = *pts_list[A.getIndex()];
+		return ColCal_Fabs(A_p.x - p.x) + ColCal_Fabs(A_p.y - p.y) + ColCal_Fabs(A_p.z - p.z);
+	}
+	inline bool KdNodeCompareBBF(ColCal_KdTree_Node* A, ColCal_KdTree_Node* B) {
+		return A->getBBF_Value() < B->getBBF_Value();
+	}
+
 private:
 	std::vector<ColCal_KdTree_Node> nodes_list;
 	std::vector<ColCal_Point*> pts_list;
