@@ -21,7 +21,7 @@ ColCal_Point& ColCal_Point::operator=(const ColCal_Point& point) {
 	this->z = point.z;
 	return *this;
 }
-ColCal_DataType& ColCal_Point::operator[](const int x) {
+ColCal_DataType& ColCal_Point::operator[](const int& x) {
 	if (x == 0)
 		return this->x;
 	if (x == 1)
@@ -29,4 +29,8 @@ ColCal_DataType& ColCal_Point::operator[](const int x) {
 	if (x == 2)
 		return this->z;
 	exit(1);
+}
+
+ColCal_DataType ColCal_Point::getDistance(const ColCal_Point& point) {
+	return ColCal_Sqrt((this->x - point.x) * (this->x - point.x) + (this->y - point.y) * (this->y - point.y) + (this->z - point.z) * (this->z - point.z));
 }

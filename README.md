@@ -27,8 +27,7 @@
 // * BOX(implemented)
 // * SHPERE
 // * RAY
-// * SEGEMENT
-// * SPLINE
+// * SEGEMENT / SPLINE
 /////////////////////////////////////////////////////////////////
 // BOUNDING VOLUME SUPPORT
 /////////////////////////////////////////////////////////////////
@@ -40,7 +39,7 @@
 // * SWEEP AND PRUNE (SaP)(implemented)
 // * QUTREE (QUT)
 // * OCTREE (OCT)
-// * KDTREE (KDT)
+// * KDTREE (KDT)(implemented)
 // * BOUNDING VOLUME HIERARCHY (BVH)(implemented)
 // * HASHING SPACE PARTITION (HSP)
 /////////////////////////////////////////////////////////////////

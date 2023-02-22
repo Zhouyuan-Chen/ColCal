@@ -9,7 +9,8 @@ public:
 	ColCal_Point(const ColCal_DataType& X, const ColCal_DataType& Y, const ColCal_DataType& Z);
 	ColCal_Point(const ColCal_Point& point);
 	ColCal_Point& operator=(const ColCal_Point& point);
-	ColCal_DataType& operator[](const int x);
+	ColCal_DataType& operator[](const int& x);
+	ColCal_DataType getDistance(const ColCal_Point& point);
 	ColCal_DataType x, y, z;
 };
 

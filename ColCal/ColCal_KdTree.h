@@ -5,6 +5,10 @@
 #include "ColCal_Tri.h"
 #include "ColCal_Box.h"
 
+enum class SearchMethod {
+	NormalSearch, BBF
+};
+
 class ColCal_KdTree_Node {
 public:
 	ColCal_KdTree_Node();
@@ -14,9 +18,11 @@ public:
 	}
 	int getAxis();
 	ColCal_DataType getSplitValue();
-	unsigned int getIndex(); 
+	unsigned int getIndex()const;
 	unsigned int* getChildsIndex();
+	unsigned int getObjsNum();
 	void MakeLeaf(unsigned int left_index, unsigned int right_index);
+	bool isLeaf() const;
 	
 private:
 	unsigned int index;
@@ -41,7 +47,10 @@ public:
 		else
 			std::sort(pts_list.begin() + left_index, pts_list.begin() + right_index - 1, &PointCompare_Z);
 	}
-	unsigned int NearestSearch();
+	unsigned int NearestSearch(const ColCal_Point*& target_point);
+	unsigned int NormalSearch(const ColCal_Point*& target_point);
+	unsigned int BBFSearch(const ColCal_Point*& target_point);
+	bool Existed(const std::vector<ColCal_KdTree_Node*>& nodes, const unsigned int& node_index);
 private:
 	std::vector<ColCal_KdTree_Node> nodes_list;
 	std::vector<ColCal_Point*> pts_list;

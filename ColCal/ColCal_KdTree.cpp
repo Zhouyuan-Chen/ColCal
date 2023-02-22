@@ -18,6 +18,15 @@ unsigned int* ColCal_KdTree_Node::getChildsIndex() {
 	return this->childs;
 }
 
+// get split_index
+unsigned int ColCal_KdTree_Node::getIndex()const {
+	return this->index;
+}
+
+unsigned int ColCal_KdTree_Node::getObjsNum() {
+	return this->objs_num;
+}
+
 int ColCal_KdTree_Node::getAxis() {
 	return this->axis;
 }
@@ -25,9 +34,9 @@ int ColCal_KdTree_Node::getAxis() {
 ColCal_DataType ColCal_KdTree_Node::getSplitValue() {
 	return this->split_value;
 }
-// get split_index
-unsigned int ColCal_KdTree_Node::getIndex() {
-	return this->index;
+
+bool ColCal_KdTree_Node::isLeaf() const {
+	return this->leaf;
 }
 
 void ColCal_KdTree::Build() {
@@ -72,6 +81,11 @@ void ColCal_KdTree::Build() {
 	unsigned int split_index = pts_list.size() / 2;
 	ColCal_DataType split_value = (*pts_list[split_index])[start_dim];
 
+	// put all points which equal to split value to right nodes
+	while (split_index > 0 && (*pts_list[split_index])[start_dim] == (*pts_list[split_index - 1])[start_dim]) {
+		split_index--;
+	}
+
 	ColCal_KdTree_Node root_node = ColCal_KdTree_Node(split_index, start_dim, split_value);
 	nodes_list.push_back(root_node);
 
@@ -100,6 +114,12 @@ void ColCal_KdTree::RecursiveBuild(ColCal_KdTree_Node& node, const unsigned int&
 			KdTree_Sort(left_node_leftindex, left_node_rightindex, cur_axis);
 			ColCal_DataType split_index = (left_node_leftindex + left_node_rightindex) / 2;
 			ColCal_DataType split_value = (*pts_list[split_index])[cur_axis];
+
+			// put all points which equal to split value to right nodes
+			while (split_index > 0 && (*pts_list[split_index])[cur_axis] == (*pts_list[split_index - 1])[cur_axis]) {
+				split_index--;
+			}
+
 			ColCal_KdTree_Node left_node = ColCal_KdTree_Node(split_index, cur_axis, split_value);
 			RecursiveBuild(left_node, left_node_leftindex, left_node_rightindex, depth + 1);
 			nodes_list.push_back(left_node);
@@ -121,6 +141,12 @@ void ColCal_KdTree::RecursiveBuild(ColCal_KdTree_Node& node, const unsigned int&
 			KdTree_Sort(right_node_leftindex, right_node_rightindex, cur_axis);
 			ColCal_DataType split_index = (right_node_leftindex + right_node_rightindex) / 2;
 			ColCal_DataType split_value = (*pts_list[split_index])[cur_axis];
+
+			// put all points which equal to split value to right nodes
+			while (split_index > 0 && (*pts_list[split_index])[cur_axis] == (*pts_list[split_index - 1])[cur_axis]) {
+				split_index--;
+			}
+
 			ColCal_KdTree_Node right_node = ColCal_KdTree_Node(split_index, cur_axis, split_value);
 			RecursiveBuild(right_node, right_node_leftindex, right_node_rightindex, depth + 1);
 			nodes_list.push_back(right_node);
@@ -130,6 +156,123 @@ void ColCal_KdTree::RecursiveBuild(ColCal_KdTree_Node& node, const unsigned int&
 
 }
 
-unsigned int ColCal_KdTree::NearestSearch() {
-	return 0;
+unsigned int ColCal_KdTree::NearestSearch(const ColCal_Point*& target_point) {
+	return NormalSearch(target_point);
+}
+
+unsigned int ColCal_KdTree::NormalSearch(const ColCal_Point*& target_point) {
+	if (nodes_list.empty())
+		return -1;
+
+	ColCal_Point target_p = *target_point;
+
+	// initiate path vector and nearest_dis
+	std::vector<ColCal_KdTree_Node*> path;
+	path.push_back(&nodes_list[0]);
+	ColCal_DataType nearest_distance = ColCal_Max_Value;
+	unsigned int nearest_index = -1;
+
+	// traverse kd-tree to find target_point's domain
+	ColCal_KdTree_Node traverse = nodes_list[0];
+	while (!traverse.isLeaf()) {
+		ColCal_DataType spilt_value = traverse.getSplitValue();
+		int dim = traverse.getAxis();
+		
+		if (target_p[dim] < spilt_value)
+			path.push_back(&nodes_list[traverse.getChildsIndex()[0]]);	
+		else 
+			path.push_back(&nodes_list[traverse.getChildsIndex()[1]]);
+		
+		traverse = *path.back();
+	}
+
+	// traverse domain to find nearest point
+	unsigned int left_index = traverse.getIndex();
+	unsigned int right_index = left_index + traverse.getObjsNum();
+	for (int i = left_index; i < right_index; i++) {
+		ColCal_Point* temp_p = pts_list[i];
+		ColCal_DataType distance = temp_p->getDistance(*target_point);
+		if (distance < nearest_distance) {
+			nearest_distance = distance;
+			nearest_index = i;
+		}
+	}
+
+	// backtrack to modify our nearest point
+	ColCal_Point nearest_point = *pts_list[nearest_index];
+	std::vector<ColCal_KdTree_Node*> traversed_nodes_list;
+	while (!path.empty()) {
+		ColCal_KdTree_Node*& last_path_node = path.back();
+		
+		// if is a leaf, then traverse the leaf and find the nearest point
+		if (last_path_node->isLeaf()) {
+			unsigned int left_index, right_index;
+			left_index = last_path_node->getIndex();
+			right_index = left_index + last_path_node->getObjsNum();
+			for (unsigned int i = left_index; i < right_index; i++) {
+				ColCal_Point temp_p = *pts_list[i];
+				ColCal_DataType distance = temp_p.getDistance(target_p);
+				if (distance < nearest_distance) {
+					nearest_index = i;
+					nearest_point = *pts_list[nearest_index];
+				}
+			}
+			traversed_nodes_list.push_back(last_path_node);
+			path.pop_back();
+		}
+		// if it is not a leaf, then judge if traverse another child
+		else {
+			int cur_axis = last_path_node->getAxis();
+
+			unsigned int split_node_index = last_path_node->getIndex();
+			ColCal_DataType distance_to_split_node = target_p.getDistance(*pts_list[split_node_index]);
+			if (distance_to_split_node < nearest_distance) {
+				nearest_index = split_node_index;
+				nearest_point = *pts_list[split_node_index];
+			}
+
+			unsigned int left_node_index, right_node_index;
+			left_node_index = last_path_node->getChildsIndex()[0];
+			right_node_index = last_path_node->getChildsIndex()[1];
+			// if have traversed left node
+			if (left_node_index != -1 && Existed(traversed_nodes_list, left_node_index)) {
+				ColCal_DataType cur_axis_distance = ColCal_Fabs(target_p[cur_axis] - last_path_node->getSplitValue());
+				// if there is a possiblity that the nearest point could exist in another domain
+				if (cur_axis_distance < nearest_distance) {
+					traversed_nodes_list.push_back(last_path_node);
+					path.pop_back();
+					// wait to traverse another node(right node)
+					path.push_back(&nodes_list[right_node_index]);
+				}
+			}
+			// if have traversed right node
+			else if (right_node_index != -1 && Existed(traversed_nodes_list, right_node_index)) {
+				ColCal_DataType cur_axis_distance = ColCal_Fabs(target_p[cur_axis] - last_path_node->getSplitValue());
+				// if there is a possiblity that the nearest point could exist in another domain
+				if (cur_axis_distance < nearest_distance) {
+					traversed_nodes_list.push_back(last_path_node);
+					path.pop_back();
+					// wait to traverse another node(left node)
+					path.push_back(&nodes_list[left_node_index]);
+				}
+			}
+			// nothing need to be done, just to update traversed_nodes_list 
+			else {
+				traversed_nodes_list.push_back(last_path_node);
+				path.pop_back();
+			}
+		}
+	}
+}
+
+unsigned int ColCal_KdTree::BBFSearch(const ColCal_Point*& target_point) {
+
+}
+
+bool ColCal_KdTree::Existed(const std::vector<ColCal_KdTree_Node*>& nodes, const unsigned int& node_index) {
+	for (const ColCal_KdTree_Node* n : nodes) {
+		if (n->getIndex() == node_index)
+			return true;
+	}
+	return false;
 }

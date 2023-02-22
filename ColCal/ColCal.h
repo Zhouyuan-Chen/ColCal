@@ -124,10 +124,14 @@
 typedef float ColCal_DataType;
 #define ColCal_Max_Value FLT_MAX
 #define ColCal_Min_Value FLT_MIN
+#define ColCal_Sqrt std::sqrtf
+#define ColCal_Fabs std::fabsf
 #else
 typedef double ColCal_DataType;
 #define ColCal_Max_Value DBL_MAX
 #define ColCal_Min_Value DBL_MIN
+#define ColCal_Sqrt std::sqrt
+#define ColCal_Fabs std::fabs
 #endif
 
 //typedef double ColCal_DataType;
