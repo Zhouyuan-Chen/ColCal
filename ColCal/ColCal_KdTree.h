@@ -22,7 +22,7 @@ public:
 	void setBBF_Value(const ColCal_DataType& BBF_Value_);
 	unsigned int getIndex()const;
 	unsigned int* getChildsIndex();
-	unsigned int getObjsNum();
+	unsigned int getObjsNum()const;
 	void MakeLeaf(unsigned int left_index, unsigned int right_index);
 	bool isLeaf() const;
 	
@@ -42,6 +42,10 @@ public:
 		:pts_list(pts), innerMaxNum(innerMaxNum_), MaxDepth(MaxDepth_) {}
 	void Build();
 	void RecursiveBuild(ColCal_KdTree_Node& node,const unsigned int& left_index, const unsigned int& right_index, const int& depth);
+	unsigned int NearestSearch(const ColCal_Point*& target_point, SearchMethod method = SearchMethod::BBF);
+	unsigned int NormalSearch(const ColCal_Point*& target_point);
+	unsigned int BBFSearch(const ColCal_Point*& target_point);
+	bool Existed(const std::vector<ColCal_KdTree_Node*>& nodes, const unsigned int& node_index);
 	inline void KdTree_Sort(const unsigned int& left_index, const unsigned int& right_index, const int& dim) {
 		if (dim == 0)
 			std::sort(pts_list.begin() + left_index, pts_list.begin() + right_index - 1, &PointCompare_X);
@@ -50,17 +54,22 @@ public:
 		else
 			std::sort(pts_list.begin() + left_index, pts_list.begin() + right_index - 1, &PointCompare_Z);
 	}
-	unsigned int NearestSearch(const ColCal_Point*& target_point);
-	unsigned int NormalSearch(const ColCal_Point*& target_point);
-	unsigned int BBFSearch(const ColCal_Point*& target_point);
-	bool Existed(const std::vector<ColCal_KdTree_Node*>& nodes, const unsigned int& node_index);
+	inline void KdTree_Sort_BBF(std::vector<ColCal_KdTree_Node*>& list) {
+		std::sort(list.begin(), list.end(), &KdNodeCompareBBF);
+	}
 	ColCal_DataType Calculate_BBF_Value(const ColCal_KdTree_Node& A, const ColCal_Point& p) {
 		// manhatte
-		ColCal_Point A_p = *pts_list[A.getIndex()];
-		return ColCal_Fabs(A_p.x - p.x) + ColCal_Fabs(A_p.y - p.y) + ColCal_Fabs(A_p.z - p.z);
+		if (!A.isLeaf()){
+			ColCal_Point A_p = *pts_list[A.getIndex()];
+			return ColCal_Fabs(A_p.x - p.x) + ColCal_Fabs(A_p.y - p.y) + ColCal_Fabs(A_p.z - p.z);
+		}
+		else {
+			ColCal_Point mid_p = *pts_list[(A.getIndex() * 2 + A.getObjsNum()) / 2];
+			return ColCal_Fabs(mid_p.x - p.x) + ColCal_Fabs(mid_p.y - p.y) + ColCal_Fabs(mid_p.z - p.z);
+		}
 	}
 	inline bool KdNodeCompareBBF(ColCal_KdTree_Node* A, ColCal_KdTree_Node* B) {
-		return A->getBBF_Value() < B->getBBF_Value();
+		return A->getBBF_Value() > B->getBBF_Value();
 	}
 
 private:
@@ -68,6 +77,7 @@ private:
 	std::vector<ColCal_Point*> pts_list;
 	unsigned int innerMaxNum;
 	unsigned int MaxDepth;
+	SearchMethod searchMethod;
 };
 
 #endif

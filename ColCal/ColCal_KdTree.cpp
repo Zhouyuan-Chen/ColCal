@@ -25,7 +25,7 @@ unsigned int ColCal_KdTree_Node::getIndex()const {
 	return this->index;
 }
 
-unsigned int ColCal_KdTree_Node::getObjsNum() {
+unsigned int ColCal_KdTree_Node::getObjsNum()const {
 	return this->objs_num;
 }
 
@@ -166,8 +166,16 @@ void ColCal_KdTree::RecursiveBuild(ColCal_KdTree_Node& node, const unsigned int&
 
 }
 
-unsigned int ColCal_KdTree::NearestSearch(const ColCal_Point*& target_point) {
-	return NormalSearch(target_point);
+unsigned int ColCal_KdTree::NearestSearch(const ColCal_Point*& target_point, SearchMethod method = SearchMethod::BBF) {
+	switch (method)
+	{
+	case SearchMethod::NormalSearch:
+		return NormalSearch(target_point);
+	case SearchMethod::BBF:
+		return BBFSearch(target_point);
+	default:
+		return NormalSearch(target_point);
+	}
 }
 
 unsigned int ColCal_KdTree::NormalSearch(const ColCal_Point*& target_point) {
@@ -196,84 +204,55 @@ unsigned int ColCal_KdTree::NormalSearch(const ColCal_Point*& target_point) {
 		traverse = *path.back();
 	}
 
-	// traverse domain to find nearest point
-	unsigned int left_index = traverse.getIndex();
-	unsigned int right_index = left_index + traverse.getObjsNum();
-	for (int i = left_index; i < right_index; i++) {
-		ColCal_Point* temp_p = pts_list[i];
-		ColCal_DataType distance = temp_p->getDistance(*target_point);
-		if (distance < nearest_distance) {
-			nearest_distance = distance;
-			nearest_index = i;
+	// backtrack to modify our nearest point
+	ColCal_Point nearest_point = *pts_list[nearest_index];
+	std::vector<ColCal_KdTree_Node*> traversed_nodes_list;
+	while (!path.empty()) {
+		ColCal_KdTree_Node*& last_path_node = path.back();
+		path.pop_back();
+		traversed_nodes_list.push_back(last_path_node);
+		
+		// if is a leaf, then traverse the leaf and find the nearest point
+		if (last_path_node->isLeaf()) {
+			unsigned int left_index, right_index;
+			left_index = last_path_node->getIndex();
+			right_index = left_index + last_path_node->getObjsNum();
+			for (unsigned int i = left_index; i < right_index; i++) {
+				ColCal_Point temp_p = *pts_list[i];
+				ColCal_DataType distance = temp_p.getDistance(target_p);
+				if (distance < nearest_distance) {
+					nearest_index = i;
+					nearest_point = *pts_list[nearest_index];
+				}
+			}
+		}
+		// if it is not a leaf, then add one child node and test if need to add another child node
+		else {
+			int cur_axis = last_path_node->getAxis();
+			ColCal_DataType split_value = last_path_node->getSplitValue();
+			
+			if (target_p[cur_axis] < split_value && Existed(traversed_nodes_list, last_path_node->getChildsIndex()[0])) {
+				// add left child node
+				path.push_back(&nodes_list[last_path_node->getChildsIndex()[0]]);
+			}
+			else if (target_p[cur_axis] >= split_value && Existed(traversed_nodes_list, last_path_node->getChildsIndex()[1])) {
+				// add right child node
+				path.push_back(&nodes_list[last_path_node->getChildsIndex()[1]]);
+			}
+			
+			// check if need to add another child node
+			ColCal_DataType distanceToAnotherchild = ColCal_Fabs(split_value - target_p[cur_axis]);
+			if (target_p[cur_axis] < split_value && distanceToAnotherchild < nearest_distance && Existed(traversed_nodes_list, last_path_node->getChildsIndex()[1])) {
+				// add right child node
+				path.push_back(&nodes_list[last_path_node->getChildsIndex()[1]]);
+			}
+			else if (target_p[cur_axis] >= split_value && distanceToAnotherchild < nearest_distance && Existed(traversed_nodes_list, last_path_node->getChildsIndex()[0])) {
+				// add right child node
+				path.push_back(&nodes_list[last_path_node->getChildsIndex()[0]]);
+			}
 		}
 	}
 
-	//// backtrack to modify our nearest point
-	//ColCal_Point nearest_point = *pts_list[nearest_index];
-	//std::vector<ColCal_KdTree_Node*> traversed_nodes_list;
-	//while (!path.empty()) {
-	//	ColCal_KdTree_Node*& last_path_node = path.back();
-	//	
-	//	// if is a leaf, then traverse the leaf and find the nearest point
-	//	if (last_path_node->isLeaf()) {
-	//		unsigned int left_index, right_index;
-	//		left_index = last_path_node->getIndex();
-	//		right_index = left_index + last_path_node->getObjsNum();
-	//		for (unsigned int i = left_index; i < right_index; i++) {
-	//			ColCal_Point temp_p = *pts_list[i];
-	//			ColCal_DataType distance = temp_p.getDistance(target_p);
-	//			if (distance < nearest_distance) {
-	//				nearest_index = i;
-	//				nearest_point = *pts_list[nearest_index];
-	//			}
-	//		}
-	//		traversed_nodes_list.push_back(last_path_node);
-	//		path.pop_back();
-	//	}
-	//	// if it is not a leaf, then judge if traverse another child
-	//	else {
-	//		int cur_axis = last_path_node->getAxis();
-
-	//		unsigned int split_node_index = last_path_node->getIndex();
-	//		ColCal_DataType distance_to_split_node = target_p.getDistance(*pts_list[split_node_index]);
-	//		if (distance_to_split_node < nearest_distance) {
-	//			nearest_index = split_node_index;
-	//			nearest_point = *pts_list[split_node_index];
-	//		}
-
-	//		unsigned int left_node_index, right_node_index;
-	//		left_node_index = last_path_node->getChildsIndex()[0];
-	//		right_node_index = last_path_node->getChildsIndex()[1];
-
-	//		// if have traversed left node
-	//		if (left_node_index != -1 && Existed(traversed_nodes_list, left_node_index)) {
-	//			ColCal_DataType cur_axis_distance = ColCal_Fabs(target_p[cur_axis] - last_path_node->getSplitValue());
-	//			// if there is a possiblity that the nearest point could exist in another domain
-	//			if (cur_axis_distance < nearest_distance) {
-	//				traversed_nodes_list.push_back(last_path_node);
-	//				path.pop_back();
-	//				// wait to traverse another node(right node)
-	//				path.push_back(&nodes_list[right_node_index]);
-	//			}
-	//		}
-	//		// if have traversed right node
-	//		else if (right_node_index != -1 && Existed(traversed_nodes_list, right_node_index)) {
-	//			ColCal_DataType cur_axis_distance = ColCal_Fabs(target_p[cur_axis] - last_path_node->getSplitValue());
-	//			// if there is a possiblity that the nearest point could exist in another domain
-	//			if (cur_axis_distance < nearest_distance) {
-	//				traversed_nodes_list.push_back(last_path_node);
-	//				path.pop_back();
-	//				// wait to traverse another node(left node)
-	//				path.push_back(&nodes_list[left_node_index]);
-	//			}
-	//		}
-	//		// nothing need to be done, just to update traversed_nodes_list 
-	//		else {
-	//			traversed_nodes_list.push_back(last_path_node);
-	//			path.pop_back();
-	//		}
-	//	}
-	//}
 	return nearest_index;
 }
 
@@ -304,106 +283,66 @@ unsigned int ColCal_KdTree::BBFSearch(const ColCal_Point*& target_point) {
 
 		traverse = path.back();
 	}
+	// this domain should be traversed firstly
+	traverse->setBBF_Value(ColCal_Min_Value);
 
-	// traverse domain's points to find nearest point
-	unsigned int left_index = traverse->getIndex();
-	unsigned int right_index = left_index + traverse->getObjsNum();
-	for (int i = left_index; i < right_index; i++) {
-		ColCal_Point* temp_p = pts_list[i];
-		ColCal_DataType distance = temp_p->getDistance(*target_point);
-		if (distance < nearest_distance) {
-			nearest_distance = distance;
-			nearest_index = i;
+	// backtrack to modify our nearest point
+	ColCal_Point nearest_point = *pts_list[nearest_index];
+	std::vector<ColCal_KdTree_Node*> traversed_nodes_list;
+	while (!path.empty()) {
+		KdTree_Sort_BBF(path);
+		ColCal_KdTree_Node*& last_path_node = path.back();
+		path.pop_back();
+		traversed_nodes_list.push_back(last_path_node);
+
+		// if is a leaf, then traverse the leaf and find the nearest point
+		if (last_path_node->isLeaf()) {
+			unsigned int left_index, right_index;
+			left_index = last_path_node->getIndex();
+			right_index = left_index + last_path_node->getObjsNum();
+			for (unsigned int i = left_index; i < right_index; i++) {
+				ColCal_Point temp_p = *pts_list[i];
+				ColCal_DataType distance = temp_p.getDistance(target_p);
+				if (distance < nearest_distance) {
+					nearest_index = i;
+					nearest_point = *pts_list[nearest_index];
+				}
+			}
+		}
+		// if it is not a leaf, then add one child node and test if need to add another child node
+		else {
+			int cur_axis = last_path_node->getAxis();
+			ColCal_DataType split_value = last_path_node->getSplitValue();
+
+			if (target_p[cur_axis] < split_value && !Existed(traversed_nodes_list, last_path_node->getChildsIndex()[0])) {
+				// add left child node
+				ColCal_DataType BBF = Calculate_BBF_Value(nodes_list[last_path_node->getChildsIndex()[0]],target_p);
+				nodes_list[last_path_node->getChildsIndex()[0]].setBBF_Value(BBF);
+				path.push_back(&nodes_list[last_path_node->getChildsIndex()[0]]);
+			}
+			else if (target_p[cur_axis] >= split_value && !Existed(traversed_nodes_list, last_path_node->getChildsIndex()[1])) {
+				// add right child node
+				ColCal_DataType BBF = Calculate_BBF_Value(nodes_list[last_path_node->getChildsIndex()[1]], target_p);
+				nodes_list[last_path_node->getChildsIndex()[1]].setBBF_Value(BBF);
+				path.push_back(&nodes_list[last_path_node->getChildsIndex()[1]]);
+			}
+
+			// check if need to add another child node
+			ColCal_DataType distanceToAnotherchild = ColCal_Fabs(split_value - target_p[cur_axis]);
+			if (target_p[cur_axis] < split_value && distanceToAnotherchild < nearest_distance && !Existed(traversed_nodes_list, last_path_node->getChildsIndex()[1])) {
+				// add right child node
+				ColCal_DataType BBF = Calculate_BBF_Value(nodes_list[last_path_node->getChildsIndex()[1]], target_p);
+				nodes_list[last_path_node->getChildsIndex()[1]].setBBF_Value(BBF);
+				path.push_back(&nodes_list[last_path_node->getChildsIndex()[1]]);
+			}
+			else if (target_p[cur_axis] >= split_value && distanceToAnotherchild < nearest_distance && !Existed(traversed_nodes_list, last_path_node->getChildsIndex()[0])) {
+				// add right child node
+				ColCal_DataType BBF = Calculate_BBF_Value(nodes_list[last_path_node->getChildsIndex()[0]], target_p);
+				nodes_list[last_path_node->getChildsIndex()[0]].setBBF_Value(BBF);
+				path.push_back(&nodes_list[last_path_node->getChildsIndex()[0]]);
+			}
 		}
 	}
-
-	//// backtrack to modify our nearest point
-	//ColCal_Point nearest_point = *pts_list[nearest_index];
-	//std::vector<ColCal_KdTree_Node*> traversed_nodes_list;
-	//while (!path.empty()) {
-	//	std::sort(path.begin(), path.end(), &KdNodeCompareBBF); // BBF method used
-
-	//	ColCal_KdTree_Node*& last_path_node = path.back();
-
-	//	// if is a leaf, then traverse the leaf and find the nearest point
-	//	if (last_path_node->isLeaf()) {
-	//		unsigned int left_index, right_index;
-	//		left_index = last_path_node->getIndex();
-	//		right_index = left_index + last_path_node->getObjsNum();
-	//		for (unsigned int i = left_index; i < right_index; i++) {
-	//			ColCal_Point temp_p = *pts_list[i];
-	//			ColCal_DataType distance = temp_p.getDistance(target_p);
-	//			if (distance < nearest_distance) {
-	//				nearest_index = i;
-	//				nearest_point = *pts_list[nearest_index];
-	//			}
-	//		}
-	//		traversed_nodes_list.push_back(last_path_node);
-	//		path.pop_back();
-	//	}
-	//	// if it is not a leaf, then judge if traverse another child
-	//	else {
-	//		int cur_axis = last_path_node->getAxis();
-
-	//		// firstly, check whether the split node point is the nearest point and update related data
-	//		unsigned int split_node_index = last_path_node->getIndex();
-	//		ColCal_DataType distance_to_split_node = target_p.getDistance(*pts_list[split_node_index]);
-	//		if (distance_to_split_node < nearest_distance) {
-	//			nearest_index = split_node_index;
-	//			nearest_point = *pts_list[split_node_index];
-	//		}
-
-	//		// now, we would like to traceback to find other possible nearest points
-	//		unsigned int left_node_index, right_node_index;
-	//		left_node_index = last_path_node->getChildsIndex()[0];
-	//		right_node_index = last_path_node->getChildsIndex()[1];
-	//		// if have traversed left node
-	//		if (left_node_index != -1 && Existed(traversed_nodes_list, left_node_index)) {
-	//			ColCal_DataType cur_axis_distance = ColCal_Fabs(target_p[cur_axis] - last_path_node->getSplitValue());
-	//			// if there is a possiblity that the nearest point could exist in another domain
-	//			if (cur_axis_distance < nearest_distance) {
-	//				traversed_nodes_list.push_back(last_path_node);
-	//				path.pop_back();
-	//				// update new node's priority value -- Axis_DistanceToTarget
-	//				if (nodes_list[right_node_index].isLeaf()) {
-	//					nodes_list[right_node_index].setBBF_Value(last_path_node->getBBF_Value());
-	//				}
-	//				else {
-	//					int next_axis = nodes_list[right_node_index].getAxis();
-	//					ColCal_DataType BBF = Calculate_BBF_Value(nodes_list[right_node_index], target_p);
-	//					nodes_list[right_node_index].setBBF_Value(BBF);
-	//				}
-	//				// wait to traverse another node(right node)
-	//				path.push_back(&nodes_list[right_node_index]);
-	//			}
-	//		}
-	//		// if have traversed right node
-	//		else if (right_node_index != -1 && Existed(traversed_nodes_list, right_node_index)) {
-	//			ColCal_DataType cur_axis_distance = ColCal_Fabs(target_p[cur_axis] - last_path_node->getSplitValue());
-	//			// if there is a possiblity that the nearest point could exist in another domain
-	//			if (cur_axis_distance < nearest_distance) {
-	//				traversed_nodes_list.push_back(last_path_node);
-	//				path.pop_back();
-	//				// update new node's priority value -- Axis_DistanceToTarget
-	//				if (nodes_list[left_node_index].isLeaf()) {
-	//					nodes_list[left_node_index].setBBF_Value(last_path_node->getBBF_Value());
-	//				}
-	//				else {
-	//					int next_axis = nodes_list[left_node_index].getAxis();
-	//					ColCal_DataType BBF = Calculate_BBF_Value(nodes_list[right_node_index], target_p);
-	//					nodes_list[left_node_index].setBBF_Value(BBF);
-	//				}
-	//				// wait to traverse another node(left node)
-	//				path.push_back(&nodes_list[left_node_index]);
-	//			}
-	//		}
-	//		// nothing need to be done, just to update traversed_nodes_list 
-	//		else {
-	//			traversed_nodes_list.push_back(last_path_node);
-	//			path.pop_back();
-	//		}
-	//	}
-	//}
 
 	return nearest_index;
 }
