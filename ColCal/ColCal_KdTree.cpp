@@ -166,7 +166,7 @@ void ColCal_KdTree::RecursiveBuild(ColCal_KdTree_Node& node, const unsigned int&
 
 }
 
-unsigned int ColCal_KdTree::NearestSearch(const ColCal_Point*& target_point, SearchMethod method = SearchMethod::BBF) {
+unsigned int ColCal_KdTree::NearestSearch(const ColCal_Point*& target_point, SearchMethod method) {
 	switch (method)
 	{
 	case SearchMethod::NormalSearch:

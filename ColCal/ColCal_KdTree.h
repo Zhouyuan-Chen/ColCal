@@ -36,6 +36,10 @@ private:
 	ColCal_DataType BBF_Value;
 };
 
+inline bool KdNodeCompareBBF(ColCal_KdTree_Node* A, ColCal_KdTree_Node* B) {
+	return A->getBBF_Value() > B->getBBF_Value();
+}
+
 class ColCal_KdTree {
 public:
 	ColCal_KdTree(const std::vector<ColCal_Point*> pts, unsigned int innerMaxNum_ = 128, unsigned int MaxDepth_ = 20)
@@ -67,9 +71,6 @@ public:
 			ColCal_Point mid_p = *pts_list[(A.getIndex() * 2 + A.getObjsNum()) / 2];
 			return ColCal_Fabs(mid_p.x - p.x) + ColCal_Fabs(mid_p.y - p.y) + ColCal_Fabs(mid_p.z - p.z);
 		}
-	}
-	inline bool KdNodeCompareBBF(ColCal_KdTree_Node* A, ColCal_KdTree_Node* B) {
-		return A->getBBF_Value() > B->getBBF_Value();
 	}
 
 private:

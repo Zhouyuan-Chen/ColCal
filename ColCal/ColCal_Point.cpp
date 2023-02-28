@@ -15,6 +15,11 @@ ColCal_Point::ColCal_Point(const ColCal_Point& point) {
 	this->y = point.y;
 	this->z = point.z;
 }
+ColCal_Point::ColCal_Point(const ColCal_Vec3& vec3) {
+	this->x = vec3.value[0];
+	this->y = vec3.value[0];
+	this->z = vec3.value[0];
+}
 ColCal_Point& ColCal_Point::operator=(const ColCal_Point& point) {
 	this->x = point.x;
 	this->y = point.y;

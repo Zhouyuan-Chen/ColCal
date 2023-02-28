@@ -51,6 +51,10 @@ public:
 	ColCal_Vec3 operator-(const ColCal_Vec3& vec) {
 		return ColCal_Vec3(this->value[0] - vec.value[0], this->value[1] - vec.value[1], this->value[2] - vec.value[2]);
 	}
+	// divide operation
+	ColCal_Vec3 operator/(const ColCal_DataType& v) {
+		return ColCal_Vec3(this->value[0] / v, this->value[1] / v, this->value[2] / v);
+	}
 	// self minus operation
 	ColCal_Vec3 operator-() {
 		return ColCal_Vec3(this->value[0] * -1.0, this->value[1] * -1.0, this->value[2] * -1.0);
@@ -66,6 +70,11 @@ public:
 	}
 	ColCal_DataType& operator[](int idx) {
 		return this->value[idx];
+	}
+	void swap(ColCal_Vec3& vec3) {
+		ColCal_Vec3 temp = *this;
+		*this = vec3;
+		vec3 = temp;
 	}
 	void print() {
 		std::cout << "(" << value[0] << ", " << value[1] << ", " << value[2] << ")" << std::endl;
@@ -182,6 +191,29 @@ public:
 	}
 	ColCal_DataType* operator[](int idx) {
 		return &value[idx][0];
+	}
+	ColCal_Mat4 getEigenMatrix()const {
+		// compute eigenmatrix
+		//ColCal_Vec3 row0(cov.value[0][0], cov.value[0][1], cov.value[0][2]),
+		//	row1(cov.value[0][0], cov.value[0][1], cov.value[0][2]),
+		//	row2(cov.value[0][0], cov.value[0][1], cov.value[0][2]);
+
+		//if (!row0[0]) {
+		//	if (row1[0]) {
+		//		row0.swap(row1);
+		//	}
+		//	else if (row2[0]) {
+		//		row0.swap(row2);
+		//	}
+		//}
+
+		//if (!row1[1] && row2[1]) {
+		//	row1.swap(row2);
+		//}
+
+		//if (row0[0]) {
+		//	if (row)
+		//}
 	}
 	void print() {
 		std::cout << "[ " << this->value[0][0] << ", " << this->value[0][1] << ", " << this->value[0][2]<< ", " << this->value[0][3] << std::endl;
