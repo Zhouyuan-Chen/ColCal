@@ -12,6 +12,7 @@ public:
 	ColCal_OBB(const std::vector<ColCal_Tri*>& tris, const std::vector<ColCal_Point*>& pts);
 	void build(const std::vector<ColCal_Point*>& pts); // for points
 	void build(const std::vector<ColCal_Tri*>& tris, const std::vector<ColCal_Point*>& pts); // for triangles
+	// Separating Axis Theorem(SAT for short)
 	bool collide(const ColCal_OBB& obb);
 	void update();
 	ColCal_Point* getBoxPoints();

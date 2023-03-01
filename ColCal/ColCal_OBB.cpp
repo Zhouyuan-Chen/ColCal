@@ -115,37 +115,30 @@ void ColCal_OBB::Build_with_Covariance(const ColCal_Mat4& cov_mat, const std::ve
 	ColCal_Vec3 up(eigen_mat[0][1], eigen_mat[1][1], eigen_mat[2][1]);
 	ColCal_Vec3 forward(eigen_mat[0][2], eigen_mat[1][2], eigen_mat[2][2]);
 
-	ColCal_Vec3 min(ColCal_Max_Value), max(ColCal_Min_Value);
-	for (const ColCal_Point* o : pts) {
-		ColCal_Vec3 temp_p(o->z, o->y, o->z);
+	ColCal_Vec3 min_proj(ColCal_Max_Value), max_proj(ColCal_Min_Value);
+	ColCal_Vec3 min, max;
+
+	for (int i = 0; i < pts.size(); i++) {
+		ColCal_Vec3 temp_p(pts[i]->x, pts[i]->y, pts[i]->z);
 		ColCal_Vec3 proj_p(temp_p * right, temp_p * up, temp_p * forward);
-		min[0] = ColCal_Min(min[0], proj_p[0]);
-		min[1] = ColCal_Min(min[1], proj_p[1]);
-		min[2] = ColCal_Min(min[2], proj_p[2]);
-		max[0] = ColCal_Max(max[0], proj_p[0]);
-		max[1] = ColCal_Max(max[1], proj_p[1]);
-		max[2] = ColCal_Max(max[2], proj_p[2]);
+		for (int j = 0; j < 3; j++) {
+			if (proj_p[j] < min_proj[i]) {
+				min_proj[j] = proj_p[j];
+				min[j] = temp_p[j];
+			}
+			else if (proj_p[j] > max_proj[j]) {
+				max_proj[j] = proj_p[j];
+				max[j] = temp_p[j];
+			}
+		}
 	}
-
-	this->pos = (min + max) / 2.0;
-	this->extension = (max - min) / 2.0;
+	
+	this->pos = (max + min) * 0.5;
+	this->extension = (max_proj - min_proj) * 0.5;
 	this->rotate = eigen_mat;
-}
 
-bool ColCal_OBB::collide(const ColCal_OBB& obb) {
-	// wait to implement
-
-
-	return false;
-}
-
-ColCal_Point* ColCal_OBB::getBoxPoints() {
 	if (points)
-		return points;
-
-	ColCal_Vec3 right(this->rotate[0][0], this->rotate[1][0], this->rotate[2][0]);
-	ColCal_Vec3 up(this->rotate[0][1], this->rotate[1][1], this->rotate[2][1]);
-	ColCal_Vec3 forward(this->rotate[0][2], this->rotate[1][2], this->rotate[2][2]);
+		delete[] points;
 
 	points = new ColCal_Point[8];
 	points[0] = ColCal_Point(pos - right * extension[0] - up * extension[1] - forward * extension[2]);
@@ -156,6 +149,52 @@ ColCal_Point* ColCal_OBB::getBoxPoints() {
 	points[0] = ColCal_Point(pos + right * extension[0] - up * extension[1] + forward * extension[2]);
 	points[0] = ColCal_Point(pos + right * extension[0] + up * extension[1] - forward * extension[2]);
 	points[0] = ColCal_Point(pos + right * extension[0] + up * extension[1] + forward * extension[2]);
+}
+
+bool ColCal_OBB::collide(const ColCal_OBB& obj) {
+	// project 8 points to this obb's space to compare max and min value
+	ColCal_Point* obj_points = obj.points;
+
+	ColCal_Vec3 right(rotate[0][0], rotate[1][0], rotate[2][0]);
+	ColCal_Vec3 up(rotate[0][1], rotate[1][1], rotate[2][1]);
+	ColCal_Vec3 forward(rotate[0][2], rotate[1][2], rotate[2][2]);
+
+	ColCal_Vec3 min_proj(ColCal_Max_Value), max_proj(ColCal_Min_Value);
+	for (int i = 0; i < 8; i++) {
+		ColCal_Vec3 p(this->points[i].x, this->points[i].y, this->points[i].z);
+		ColCal_Vec3 p_proj(p * right, p * up, p * forward);
+		min_proj[0] = ColCal_Min(min_proj[0], p_proj[0]);
+		min_proj[1] = ColCal_Min(min_proj[1], p_proj[1]);
+		min_proj[2] = ColCal_Min(min_proj[2], p_proj[2]);
+		max_proj[0] = ColCal_Max(max_proj[0], p_proj[0]);
+		max_proj[1] = ColCal_Max(max_proj[1], p_proj[1]);
+		max_proj[2] = ColCal_Max(max_proj[2], p_proj[2]);
+	}
+
+	ColCal_Vec3 min_proj_(ColCal_Max_Value), max_proj_(ColCal_Min_Value);
+	for (int i = 0; i < 8; i++) {
+		ColCal_Vec3 p(obj_points[i].x, obj_points[i].y, obj_points[i].z);
+		ColCal_Vec3 p_proj(p * right, p * up, p * forward);
+		min_proj_[0] = ColCal_Min(min_proj_[0], p_proj[0]);
+		min_proj_[1] = ColCal_Min(min_proj_[1], p_proj[1]);
+		min_proj_[2] = ColCal_Min(min_proj_[2], p_proj[2]);
+		max_proj_[0] = ColCal_Max(max_proj_[0], p_proj[0]);
+		max_proj_[1] = ColCal_Max(max_proj_[1], p_proj[1]);
+		max_proj_[2] = ColCal_Max(max_proj_[2], p_proj[2]);
+	}
+
+	int flag = 0;
+	for (int i = 0; i < 3; i++) {
+		if (max_proj[i] < min_proj_[i])
+			return true;
+		if (min_proj[i] > max_proj_[i])
+			return true;
+	}
+
+	return false;
+}
+
+ColCal_Point* ColCal_OBB::getBoxPoints() {
 	return points;
 }
 

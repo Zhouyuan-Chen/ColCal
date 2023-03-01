@@ -2,6 +2,7 @@
 #define COLCAL_MATH_H
 
 #include "ColCal.h"
+#include "Eigen/Dense"
 
 /////////////////////////////////////////////////////////////////
 // Note: In this library, our vector and matrix use row-main 
@@ -193,27 +194,26 @@ public:
 		return &value[idx][0];
 	}
 	ColCal_Mat4 getEigenMatrix()const {
-		// compute eigenmatrix
-		//ColCal_Vec3 row0(cov.value[0][0], cov.value[0][1], cov.value[0][2]),
-		//	row1(cov.value[0][0], cov.value[0][1], cov.value[0][2]),
-		//	row2(cov.value[0][0], cov.value[0][1], cov.value[0][2]);
+		// using Eigen library
 
-		//if (!row0[0]) {
-		//	if (row1[0]) {
-		//		row0.swap(row1);
-		//	}
-		//	else if (row2[0]) {
-		//		row0.swap(row2);
-		//	}
-		//}
+		Eigen::Matrix4d A;
 
-		//if (!row1[1] && row2[1]) {
-		//	row1.swap(row2);
-		//}
+		A << value[0][0], value[0][1], value[0][2], value[0][3],
+			value[1][0], value[1][1], value[1][2], value[1][3],
+			value[2][0], value[2][1], value[2][2], value[2][3],
+			value[3][0], value[3][1], value[3][2], value[3][3];
 
-		//if (row0[0]) {
-		//	if (row)
-		//}
+		Eigen::EigenSolver<Eigen::Matrix4d> es(A);
+
+		Eigen::Matrix4d res = es.pseudoEigenvectors();
+		ColCal_Mat4 result(
+			res(0, 0), res(0, 1), res(0, 2), res(0, 3),
+			res(1, 0), res(1, 1), res(1, 2), res(1, 3),
+			res(2, 0), res(2, 1), res(2, 2), res(2, 3),
+			res(3, 0), res(3, 1), res(3, 2), res(3, 3)
+		);
+
+		return result;
 	}
 	void print() {
 		std::cout << "[ " << this->value[0][0] << ", " << this->value[0][1] << ", " << this->value[0][2]<< ", " << this->value[0][3] << std::endl;
