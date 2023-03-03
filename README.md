@@ -39,16 +39,18 @@
 /////////////////////////////////////////////////////////////////
 // * AABB-BOX(implemented)
 // * OBB-BOX(implemented)
+// * BoundingBox Adapter(I highly recommend you not use 
+//    this adapter, just use this library's algorithm's default setting)
 // * SPHERE
 /////////////////////////////////////////////////////////////////
 // ACCELERATION COLLISION DETECTION ALGORITHM SUPPORT
 /////////////////////////////////////////////////////////////////
-// * SWEEP AND PRUNE (SaP)(implemented)
-// * KDTREE (KDT + KNN-Search)(implemented)
-// * BOUNDING VOLUME HIERARCHY (BVH)(implemented)
-// * QUTREE (QUT)
-// * OCTREE (OCT)
-// * HASHING SPACE PARTITION (HSP)
+// * SWEEP AND PRUNE (SaP)(implemented)[AABB]
+// * KDTREE (KDT + KNN-Search)(implemented)[OBB]
+// * BOUNDING VOLUME HIERARCHY (BVH)(implemented)[OBB]
+// * QUTREE (QUT)[OBB]
+// * OCTREE (OCT)[OBB]
+// * HASHING SPACE PARTITION (HSP)[AABB]
 /////////////////////////////////////////////////////////////////
 // MATH CLASS SUPPORT
 /////////////////////////////////////////////////////////////////

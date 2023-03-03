@@ -11,21 +11,24 @@ ColCal_OBB::ColCal_OBB() {
 	this->rotate = ColCal_Mat4();
 	this->pos = ColCal_Vec3();
 	this->extension = ColCal_Vec3();
+	this->idx = -1;
 }
 
-ColCal_OBB::ColCal_OBB(const std::vector<ColCal_Point*>& pts) {
+ColCal_OBB::ColCal_OBB(const std::vector<ColCal_Point*>& pts, unsigned int index) {
 	this->points = nullptr;
 	this->rotate = ColCal_Mat4();
 	this->pos = ColCal_Vec3();
 	this->extension = ColCal_Vec3();
+	this->idx = index;
 	build(pts);
 }
 
-ColCal_OBB::ColCal_OBB(const std::vector<ColCal_Tri*>& tris, const std::vector<ColCal_Point*>& pts) {
+ColCal_OBB::ColCal_OBB(const std::vector<ColCal_Tri*>& tris, const std::vector<ColCal_Point*>& pts, unsigned int index) {
 	this->points = nullptr;
 	this->rotate = ColCal_Mat4();
 	this->pos = ColCal_Vec3();
 	this->extension = ColCal_Vec3();
+	this->idx = index;
 	build(tris, pts);
 }
 
@@ -196,6 +199,44 @@ bool ColCal_OBB::collide(const ColCal_OBB& obj) {
 
 ColCal_Point* ColCal_OBB::getBoxPoints() {
 	return points;
+}
+
+ColCal_DataType ColCal_OBB::getSurfaceArea() {
+	ColCal_DataType len_x, len_y, len_z;
+	len_x = extension[0];
+	len_y = extension[1];
+	len_z = extension[1];
+	return (len_x * len_y + len_x * len_z + len_y * len_z) * 2.0;
+}
+
+ColCal_DataType ColCal_OBB::getVolume(){
+	ColCal_DataType len_x, len_y, len_z;
+	len_x = extension[0];
+	len_y = extension[1];
+	len_z = extension[1];
+	return len_x * len_y* len_z;
+}
+
+ColCal_DataType ColCal_OBB::getMax(int x)const {
+	ColCal_DataType ret = ColCal_Min_Value;
+	for (int i = 0; i < 8; i++) {
+		if (points[i][x] > ret)
+			ret = points[i][x];
+	}
+	return ret;
+}
+
+ColCal_DataType ColCal_OBB::getMin(int x)const {
+	ColCal_DataType ret = ColCal_Max_Value;
+	for (int i = 0; i < 8; i++) {
+		if (points[i][x] < ret)
+			ret = points[i][x];
+	}
+	return ret;
+}
+
+unsigned int ColCal_OBB::getIdx()const {
+	return this->idx;
 }
 
 void ColCal_OBB::update() {

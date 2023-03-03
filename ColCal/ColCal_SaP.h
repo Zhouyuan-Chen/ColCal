@@ -3,18 +3,17 @@
 
 #include "ColCal.h"
 #include "ColCal_Tri.h"
-#include "ColCal_Box.h"
+#include "ColCal_AABB.h"
 
-inline bool SaP_BoxCompare_X(const ColCal_Box& A, const ColCal_Box& B) {
-	
+inline bool SaP_BoxCompare_X(const ColCal_AABB& A, const ColCal_AABB& B) {
 	return A.getMin(0) < B.getMin(0);
 };
 
-inline bool SaP_BoxCompare_Y(const ColCal_Box& A, const ColCal_Box& B) {
+inline bool SaP_BoxCompare_Y(const ColCal_AABB& A, const ColCal_AABB& B) {
 	return A.getMin(1) < B.getMin(1);
 };
 
-inline bool SaP_BoxCompare_Z(const ColCal_Box& A, const ColCal_Box& B) {
+inline bool SaP_BoxCompare_Z(const ColCal_AABB& A, const ColCal_AABB& B) {
 	return A.getMin(2) < B.getMin(2);
 };
 
@@ -28,7 +27,7 @@ public:
 	ColCal_SaP_Objects(std::vector<ColCal_Tri>& tris, int Idx) {
 		for (const ColCal_Tri& tri : tris) {
 			this->TriArray.push_back(tri);
-			ColCal_Box box = ColCal_Box(tri);
+			ColCal_AABB box = ColCal_AABB(tri);
 			this->BoxArray.push_back(box);
 		}
 		this->idx = Idx;
@@ -56,7 +55,7 @@ public:
 
 
 	std::vector<ColCal_Tri> TriArray;
-	std::vector<ColCal_Box> BoxArray;
+	std::vector<ColCal_AABB> BoxArray;
 	std::vector<ColCal_Tri_Pair> result;
 
 	int axis;

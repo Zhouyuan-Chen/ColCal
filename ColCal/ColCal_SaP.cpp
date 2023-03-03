@@ -1,7 +1,7 @@
 #include "ColCal_SaP.h"
 
 // this function is used by SaP, to test whether need to continue to sweep
-bool SaP_Passed(const ColCal_Box a, const ColCal_Box b, const int axis = 0) {
+bool SaP_Passed(const ColCal_AABB a, const ColCal_AABB b, const int axis = 0) {
 	if (a.getMax(axis) < b.getMin(axis))
 		return true;
 	return false;
@@ -20,18 +20,18 @@ void ColCal_SaP_Objects::compute() {
 	// let's say we use idx-n object sweep the whole list 
 	// from n+1 to x(where no box intersects with the current box)
 	for (int cur_idx = 0; cur_idx < this->BoxArray.size(); cur_idx++) {
-		ColCal_Box cur_box = this->BoxArray[cur_idx];
-		std::vector<ColCal_Box> cur_box2_set;
+		ColCal_AABB cur_box = this->BoxArray[cur_idx];
+		std::vector<ColCal_AABB> cur_box2_set;
 		bool has_intersect = false;
 
 		// the first sweep
 		for (int i = cur_idx + 1; i < this->BoxArray.size(); i++) {
-			ColCal_Box cur_box_cmp = this->BoxArray[i];
+			ColCal_AABB cur_box_cmp = this->BoxArray[i];
 			// if no box intersects with current box, then break and sweep the next box in list1
 			if (SaP_Passed(cur_box, cur_box_cmp, this->axis)) {
 				break;
 			}
-			if (cur_box.ColCal_Collision_Axis(cur_box_cmp, this->axis)) {
+			if (cur_box.collide_axis(cur_box_cmp, this->axis)) {
 				cur_box2_set.push_back(cur_box_cmp);
 			}
 		}
@@ -42,11 +42,11 @@ void ColCal_SaP_Objects::compute() {
 
 		ColCal_Tri tri1 = this->TriArray[cur_box.getIdx()];
 
-		for (const ColCal_Box& box2 : cur_box2_set) {
+		for (const ColCal_AABB& box2 : cur_box2_set) {
 			// the second sweep
-			if (cur_box.ColCal_Collision_Axis(box2, next_axis1)) {
+			if (cur_box.collide_axis(box2, next_axis1)) {
 				// the third sweep
-				if (cur_box.ColCal_Collision_Axis(box2, next_axis2)) {
+				if (cur_box.collide_axis(box2, next_axis2)) {
 					// passed three sweep, it means this collision is valid!
 					ColCal_Tri tri2 = this->TriArray[box2.getIdx()];
 					// compute two triangles
@@ -79,20 +79,20 @@ void ColCal_SaP_2_Objs::compute() {
 	int skip_idx_min = 0;
 
 	// let's say we use Obj1 as the main object list, and then we sweep the whole Obj2
-	for (ColCal_Box box1 : this->Obj1.BoxArray) {
-		ColCal_Box cur_box = box1;
-		std::vector<ColCal_Box> cur_box2_set;
+	for (ColCal_AABB box1 : this->Obj1.BoxArray) {
+		ColCal_AABB cur_box = box1;
+		std::vector<ColCal_AABB> cur_box2_set;
 		bool has_intersect = false;
 
 		// the first sweep
 		for (int i = skip_idx_min; i < Obj2.BoxArray.size(); i++) {
 
-			ColCal_Box cur_box_cmp = Obj2.BoxArray[i];
+			ColCal_AABB cur_box_cmp = Obj2.BoxArray[i];
 			// if no box intersects with current box, then break and sweep the next box in list1
 			if (SaP_Passed(cur_box, cur_box_cmp, this->axis)) {
 				break;
 			}
-			if (cur_box.ColCal_Collision_Axis(cur_box_cmp, this->axis)) {
+			if (cur_box.collide_axis(cur_box_cmp, this->axis)) {
 				if (!has_intersect) {
 					has_intersect = true;
 					// we are only supposed to record the first idx, because the following
@@ -115,11 +115,11 @@ void ColCal_SaP_2_Objs::compute() {
 		int next_axis2 = (next_axis1 + 1) % 3;
 		ColCal_Tri tri1 = Obj1.TriArray[cur_box.getIdx()];
 
-		for (const ColCal_Box& box2 : cur_box2_set) {
+		for (const ColCal_AABB& box2 : cur_box2_set) {
 			// the second sweep
-			if (cur_box.ColCal_Collision_Axis(box2, next_axis1)) {
+			if (cur_box.collide_axis(box2, next_axis1)) {
 				// the third sweep
-				if (cur_box.ColCal_Collision_Axis(box2, next_axis2)) {
+				if (cur_box.collide_axis(box2, next_axis2)) {
 					// passed three sweep, it means this collision is valid!
 					ColCal_Tri tri2 = Obj2.TriArray[box2.getIdx()];
 					// compute two triangles

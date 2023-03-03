@@ -13,7 +13,7 @@ int main() {
 	//	cout << "No!";
 
 
-	vector<ColCal_Box> boxes;
+	vector<ColCal_AABB> boxes;
 	vector<ColCal_Tri> tris;
 	std::srand(std::time(nullptr));
 

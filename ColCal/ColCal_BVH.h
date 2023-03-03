@@ -3,7 +3,7 @@
 
 #include "ColCal.h"
 #include "ColCal_Tri.h"
-#include "ColCal_Box.h"
+#include "ColCal_AABB.h"
 
 enum class SplitMethod
 {
@@ -51,22 +51,22 @@ private:
 class ColCal_BVH_Node {
 public:
 	ColCal_BVH_Node() {
-		box = ColCal_Box();
+		box = ColCal_AABB();
 		objs_num = 0;
 		idx = 0;
 		childs[0] = childs[1] = 0;
 		leaf = false;
 	}
-	ColCal_BVH_Node(const ColCal_Box& b, unsigned int Objs_num, unsigned Begin_index, bool Leaf = false) {
-		this->box = ColCal_Box(b);
+	ColCal_BVH_Node(const ColCal_AABB& b, unsigned int Objs_num, unsigned Begin_index, bool Leaf = false) {
+		this->box = ColCal_AABB(b);
 		this->objs_num = objs_num;
 		this->idx = Begin_index;
 		childs[0] = childs[1] = -1;
 		this->leaf = Leaf;
 	}
 
-	void setBox(ColCal_Box&);
-	ColCal_Box getBox() const;
+	void setBox(ColCal_AABB&);
+	ColCal_AABB getBox() const;
 	void makeLeaf(unsigned int left, unsigned right);
 
 	bool isLeaf() { return leaf; }
@@ -75,7 +75,7 @@ public:
 	unsigned int* getChildsIndex();
 
 private:
-	ColCal_Box box;
+	ColCal_AABB box;
 	bool leaf;
 	// relate to objs_list
 	unsigned int idx;

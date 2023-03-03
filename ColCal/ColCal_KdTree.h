@@ -3,7 +3,7 @@
 
 #include "ColCal.h"
 #include "ColCal_Tri.h"
-#include "ColCal_Box.h"
+#include "ColCal_AABB.h"
 
 enum class SearchMethod {
 	NormalSearch, BBF
