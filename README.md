@@ -1,4 +1,7 @@
 ```
+NOTE: 
+
+
 /////////////////////////////////////////////////////////////////
 ///////       COLLISION CALCULATION LIBRARY (ColCal)      ///////
 ///////  _____   _____   _       _____       ___   _      ///////
@@ -39,8 +42,9 @@
 /////////////////////////////////////////////////////////////////
 // * AABB-BOX(implemented)
 // * OBB-BOX(implemented)
-// * BoundingBox Adapter(I highly recommend you not use 
-//    this adapter, just use this library's algorithm's default setting)
+// * BoundingBox Adapter(Due to design reasons, I don't recommend 
+//    you to use the boundingbox class to use the polymorphic features 
+//    of the class.)
 // * SPHERE
 /////////////////////////////////////////////////////////////////
 // ACCELERATION COLLISION DETECTION ALGORITHM SUPPORT
