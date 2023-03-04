@@ -14,23 +14,25 @@ enum class BVH_AxisMethod {
 	Variance, Difference
 };
 
-class ColCal_BVH_Node;
+class ColCal_BVH_Node_AABB;
 
 class ColCal_BVH {
 public:
 	ColCal_BVH(const std::vector<ColCal_Tri*>& tris_, unsigned int maxInterNum_ = 1, SplitMethod splitMethod_ = SplitMethod::EqualCounts, BVH_AxisMethod axisMethod_ = BVH_AxisMethod::Variance)
 		: objs_list(tris_), maxInterNum(maxInterNum_), splitMethod(splitMethod_), axisMethod(axisMethod_){}
 	void Build();
-	void Build_Recursive(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node, SplitMethod splitMethod);
-	void Build_Recursive_Middle(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
-	void Build_Recursive_SAH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
-	void Build_Recursive_EqualCounts(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
-	void Build_Recursive_HLBVH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node& node);
-	ColCal_BVH_Node* getLeftChild(ColCal_BVH_Node& node);
-	ColCal_BVH_Node* getRightChild(ColCal_BVH_Node& node);
-	int getOptimalAxis(const ColCal_BVH_Node& node, const unsigned int& left, const unsigned& right);
-	int getMaxVarAxis(const ColCal_BVH_Node& node, const unsigned int& left, const unsigned& right);
-	int getMaxDifAxis(const ColCal_BVH_Node& node, const unsigned int& left, const unsigned& right);
+	void Build_Recursive(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node_AABB& node, SplitMethod splitMethod);
+	void Build_Recursive_Middle(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node_AABB& node);
+	void Build_Recursive_SAH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node_AABB& node);
+	void Build_Recursive_EqualCounts(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node_AABB& node);
+	void Build_Recursive_HLBVH(unsigned int left_index, unsigned int right_index, ColCal_BVH_Node_AABB& node);
+	ColCal_BVH_Node_AABB* getLeftChild(ColCal_BVH_Node_AABB& node);
+	ColCal_BVH_Node_AABB* getRightChild(ColCal_BVH_Node_AABB& node);
+	int getOptimalAxis(const ColCal_BVH_Node_AABB& node, const unsigned int& left, const unsigned& right);
+	int getMaxVarAxis(const ColCal_BVH_Node_AABB& node, const unsigned int& left, const unsigned& right);
+	int getMaxDifAxis(const ColCal_BVH_Node_AABB& node, const unsigned int& left, const unsigned& right);
+	bool Empty();
+	ColCal_BVH_Node_AABB& getNode(unsigned int index);
 	inline void BVH_Sort(const unsigned int& left_index, const unsigned int& right_index, const int dim = 0) {
 		if (dim == 0)
 			std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_X);
@@ -39,25 +41,26 @@ public:
 		else
 			std::sort(objs_list.begin() + left_index, objs_list.begin() + right_index - 1, &TriCompare_Z);
 	}
+	ColCal_Tri* getObj(unsigned int& index);
 
 private:
 	unsigned int maxInterNum;
 	SplitMethod splitMethod;
 	BVH_AxisMethod axisMethod;
 	std::vector<ColCal_Tri*> objs_list;
-	std::vector<ColCal_BVH_Node> nodes_list;
+	std::vector<ColCal_BVH_Node_AABB> nodes_list;
 };
 
-class ColCal_BVH_Node {
+class ColCal_BVH_Node_AABB {
 public:
-	ColCal_BVH_Node() {
+	ColCal_BVH_Node_AABB() {
 		box = ColCal_AABB();
 		objs_num = 0;
 		idx = 0;
 		childs[0] = childs[1] = 0;
 		leaf = false;
 	}
-	ColCal_BVH_Node(const ColCal_AABB& b, unsigned int Objs_num, unsigned Begin_index, bool Leaf = false) {
+	ColCal_BVH_Node_AABB(const ColCal_AABB& b, unsigned int Objs_num, unsigned Begin_index, bool Leaf = false) {
 		this->box = ColCal_AABB(b);
 		this->objs_num = objs_num;
 		this->idx = Begin_index;

@@ -81,6 +81,13 @@ bool ColCal_AABB::collide(const ColCal_AABB& b) {
 	return true;
 }
 
+bool ColCal_AABB::collide(const ColCal_AABB& b, const ColCal_Mat4& M) {
+	// wait to implement
+
+
+	return false;
+}
+
 bool ColCal_AABB::collide_axis(const ColCal_AABB b, const int axis) {
 	if (b.Max[axis] < this->Min[axis] || b.Min[axis]>this->Max[axis])
 		return false;

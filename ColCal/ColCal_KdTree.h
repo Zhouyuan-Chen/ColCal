@@ -1,5 +1,5 @@
-#ifndef COLCAL_KDTREE
-#define COLCAL_KDTREE
+#ifndef COLCAL_KDTREE_H
+#define COLCAL_KDTREE_H
 
 #include "ColCal.h"
 #include "ColCal_Tri.h"

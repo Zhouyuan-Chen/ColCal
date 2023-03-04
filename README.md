@@ -1,7 +1,4 @@
 ```
-NOTE: 
-
-
 /////////////////////////////////////////////////////////////////
 ///////       COLLISION CALCULATION LIBRARY (ColCal)      ///////
 ///////  _____   _____   _       _____       ___   _      ///////
@@ -42,19 +39,20 @@ NOTE:
 /////////////////////////////////////////////////////////////////
 // * AABB-BOX(implemented)
 // * OBB-BOX(implemented)
-// * BoundingBox Adapter(Due to design reasons, I don't recommend 
-//    you to use the boundingbox class to use the polymorphic features 
-//    of the class.)
+// * BoundingBox Adapter(implemented)(Due to design reasons,
+//    I don't recommend you to use the boundingbox class to use 
+//    the polymorphic features of the class.)
 // * SPHERE
 /////////////////////////////////////////////////////////////////
 // ACCELERATION COLLISION DETECTION ALGORITHM SUPPORT
 /////////////////////////////////////////////////////////////////
-// * SWEEP AND PRUNE (SaP)(implemented)[AABB]
-// * KDTREE (KDT + KNN-Search)(implemented)[OBB]
-// * BOUNDING VOLUME HIERARCHY (BVH)(implemented)[OBB]
-// * QUTREE (QUT)[OBB]
-// * OCTREE (OCT)[OBB]
-// * HASHING SPACE PARTITION (HSP)[AABB]
+// Note: I only used AABB now, OBB will be realized soon.
+// * SWEEP AND PRUNE (SaP)(implemented)
+// * KDTREE (KDT + KNN-Search)(implemented)
+// * BOUNDING VOLUME HIERARCHY (BVH)(implemented)
+// * QUTREE (QUT)
+// * OCTREE (OCT)
+// * HASHING SPACE PARTITION (HSP)
 /////////////////////////////////////////////////////////////////
 // MATH CLASS SUPPORT
 /////////////////////////////////////////////////////////////////

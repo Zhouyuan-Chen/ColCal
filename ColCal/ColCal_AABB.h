@@ -18,6 +18,7 @@ public:
 	//void Union();
 
 	bool collide(const ColCal_AABB& b);
+	bool collide(const ColCal_AABB& b, const ColCal_Mat4& M);
 	bool collide_axis(const ColCal_AABB b, const int axis = 0);
 	ColCal_DataType getSurfaceArea();
 	ColCal_DataType getVolume();

@@ -1,5 +1,5 @@
-#ifndef COLCAL_BOUNDINGBOX
-#define COLCAL_BOUNDINGBOX
+#ifndef COLCAL_BOUNDINGBOX_H
+#define COLCAL_BOUNDINGBOX_H
 
 #include "ColCal_OBB.h"
 #include "ColCal_AABB.h"

@@ -1,5 +1,5 @@
-#ifndef COlCAL_OBB
-#define COLCAL_OBB
+#ifndef COlCAL_OBB_H
+#define COLCAL_OBB_H
 
 #include "ColCal.h"
 #include "ColCal_Tri.h"
@@ -8,8 +8,8 @@ class ColCal_OBB {
 public:
 	ColCal_OBB();
 	~ColCal_OBB();
-	ColCal_OBB(const std::vector<ColCal_Point*>& pts, unsigned int index = -1);
-	ColCal_OBB(const std::vector<ColCal_Tri*>& tris, const std::vector<ColCal_Point*>& pts, unsigned int index = -1);
+	ColCal_OBB(const std::vector<ColCal_Point*>& pts, unsigned int index = 0);
+	ColCal_OBB(const std::vector<ColCal_Tri*>& tris, const std::vector<ColCal_Point*>& pts, unsigned int index = 0);
 	void build(const std::vector<ColCal_Point*>& pts); // for points
 	void build(const std::vector<ColCal_Tri*>& tris, const std::vector<ColCal_Point*>& pts); // for triangles
 	// Separating Axis Theorem(SAT for short)

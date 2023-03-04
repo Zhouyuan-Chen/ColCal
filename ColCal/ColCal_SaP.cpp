@@ -50,7 +50,7 @@ void ColCal_SaP_Objects::compute() {
 					// passed three sweep, it means this collision is valid!
 					ColCal_Tri tri2 = this->TriArray[box2.getIdx()];
 					// compute two triangles
-					if (tri1.ColCal_Collision(tri2)) {
+					if (tri1.collide(tri2)) {
 						// if collide, then add to result
 						result.push_back(ColCal_Tri_Pair(tri1, tri2));
 					}
@@ -123,7 +123,7 @@ void ColCal_SaP_2_Objs::compute() {
 					// passed three sweep, it means this collision is valid!
 					ColCal_Tri tri2 = Obj2.TriArray[box2.getIdx()];
 					// compute two triangles
-					if (tri1.ColCal_Collision(tri2)) {
+					if (tri1.collide(tri2)) {
 						// if collide, then add to result
 						result.push_back(ColCal_Tri_Pair(tri1, tri2));
 					}
