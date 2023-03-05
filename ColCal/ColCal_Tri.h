@@ -12,9 +12,10 @@ public:
 	ColCal_Tri(const ColCal_Tri& tri);
 	ColCal_Tri& operator=(const ColCal_Tri& tri);
 	ColCal_Point getMidPoint();
-	bool ColCal_Point_Inside_Triangle(const ColCal_Point& p) const;
+	unsigned int Point_Inside_Triangle(const ColCal_Point& p, bool needDetail = false) const;
 	bool collide(const ColCal_Tri& tri, bool considerParallel = false);
 	bool collide(const ColCal_Tri& tri, ColCal_Mat4& M, bool considerParallel = false);
+	ColCal_DataType tri_dis(const ColCal_Tri& tri, ColCal_Mat4& M);
 
 	unsigned int idx;
 	ColCal_Point Points[3];

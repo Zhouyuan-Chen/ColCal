@@ -49,7 +49,7 @@
 // Note: I only used AABB now, OBB will be realized soon.
 // * SWEEP AND PRUNE (SaP)(implemented)
 // * KDTREE (KDT + KNN-Search)(implemented)
-// * BOUNDING VOLUME HIERARCHY (BVH)(implemented)
+// * BOUNDING VOLUME HIERARCHY (BVH SAH + FPQ)(implemented)
 // * QUTREE (QUT)
 // * OCTREE (OCT)
 // * HASHING SPACE PARTITION (HSP)

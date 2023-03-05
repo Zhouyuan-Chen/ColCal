@@ -18,13 +18,16 @@ public:
 	//void Union();
 
 	bool collide(const ColCal_AABB& b);
-	bool collide(const ColCal_AABB& b, const ColCal_Mat4& M);
+	bool collide(const ColCal_AABB& b, ColCal_Mat4& M);
+	ColCal_DataType getProximateDis(const ColCal_AABB& b, ColCal_Mat4& M);
 	bool collide_axis(const ColCal_AABB b, const int axis = 0);
 	ColCal_DataType getSurfaceArea();
 	ColCal_DataType getVolume();
 	ColCal_DataType getMax(int x)const;
 	ColCal_DataType getMin(int x)const;
 	unsigned int getIdx()const;
+
+	std::vector<ColCal_Vec4> getPoints()const;
 
 private:
 	int idx;

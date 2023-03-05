@@ -37,6 +37,10 @@ public:
 	ColCal_DataType operator*(const ColCal_Vec3& vec) {
 		return this->value[0] * vec.value[0] + this->value[1] * vec.value[1] + this->value[2] * vec.value[2];
 	}
+	// dot operation
+	ColCal_Vec3 operator*(const ColCal_DataType& c) {
+		return ColCal_Vec3(this->value[0] * c, this->value[1] * c, this->value[2] * c);
+	}
 	// cross operation
 	ColCal_Vec3 operator^(const ColCal_Vec3& vec) {
 		return ColCal_Vec3(
@@ -192,6 +196,25 @@ public:
 	}
 	ColCal_DataType* operator[](int idx) {
 		return &value[idx][0];
+	}
+	ColCal_Mat4 getInverse() const{
+		Eigen::Matrix4d A;
+
+		A << value[0][0], value[0][1], value[0][2], value[0][3],
+			value[1][0], value[1][1], value[1][2], value[1][3],
+			value[2][0], value[2][1], value[2][2], value[2][3],
+			value[3][0], value[3][1], value[3][2], value[3][3];
+
+		Eigen::Matrix4d res = A.inverse();
+
+		ColCal_Mat4 result(
+			res(0, 0), res(0, 1), res(0, 2), res(0, 3),
+			res(1, 0), res(1, 1), res(1, 2), res(1, 3),
+			res(2, 0), res(2, 1), res(2, 2), res(2, 3),
+			res(3, 0), res(3, 1), res(3, 2), res(3, 3)
+		);
+
+		return result;
 	}
 	ColCal_Mat4 getEigenMatrix()const {
 		// using Eigen library
