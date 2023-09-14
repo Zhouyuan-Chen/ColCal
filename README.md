@@ -31,9 +31,6 @@
 // * TRIANGLE(implemented)
 // * PLANE(implemented)
 // * BOX(implemented)
-// * SHPERE
-// * RAY
-// * SEGEMENT / SPLINE
 /////////////////////////////////////////////////////////////////
 // BOUNDING VOLUME SUPPORT
 /////////////////////////////////////////////////////////////////
@@ -42,7 +39,6 @@
 // * BoundingBox Adapter(implemented)(Due to design reasons,
 //    I don't recommend you to use the boundingbox class to use 
 //    the polymorphic features of the class.)
-// * SPHERE
 /////////////////////////////////////////////////////////////////
 // ACCELERATION COLLISION DETECTION ALGORITHM SUPPORT
 /////////////////////////////////////////////////////////////////
@@ -50,6 +46,7 @@
 // * SWEEP AND PRUNE (SaP)(implemented)
 // * KDTREE (KDT + KNN-Search)(implemented)
 // * BOUNDING VOLUME HIERARCHY (BVH SAH + FPQ)(implemented)
+// * * following features would be implemented in the future
 // * QUTREE (QUT)
 // * OCTREE (OCT)
 // * HASHING SPACE PARTITION (HSP)
@@ -60,12 +57,6 @@
 // * VEC4 (for point position)(implemented)
 // * MAT4 (for basic rotate and transform)(implemented)
 // * Eigenvectors Solution (Using Eigen Library)
-/////////////////////////////////////////////////////////////////
-// CURVE SPLINE
-/////////////////////////////////////////////////////////////////
-// WAITING TO BE DESIGNED
-//
-//
 /////////////////////////////////////////////////////////////////
 // DIAGRAM FOR LEFT-HAND RULE
 /////////////////////////////////////////////////////////////////
